@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include "ST7920_lib.h"
 /* USER CODE END Includes */
 
@@ -32,7 +33,7 @@
 /* USER CODE BEGIN PTD */
 struct Button
 {
-	uint8_t* Label;
+	char* Label;
 	GPIO_TypeDef* GPIO;
 	uint16_t GPIO_Pin;
 	GPIO_TypeDef* GPIO_Out;
@@ -77,6 +78,7 @@ SD_HandleTypeDef hsd;
 SPI_HandleTypeDef hspi2;
 DMA_HandleTypeDef hdma_spi2_tx;
 
+TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN PV */
@@ -89,8 +91,8 @@ uint32_t counter = 0, count_prev = 0;
 #define BUTTONS_COUNT 15
 struct Button Buttons[BUTTONS_COUNT];
 static uint32_t Defines[BUTTONS_COUNT][6] = {
-		{(uint32_t)V_Push_V_Weld_GPIO_Port, V_Push_V_Weld_Pin, 0, 0, PRESS, 0},															/* 0Macros*/
-		{(uint32_t)Prepare_material_GPIO_Port, Prepare_material_Pin, (uint32_t)Prepare_Out_GPIO_Port, Prepare_Out_Pin, HOLD_UNTIL, 12000},	/* 1Prepare material from bobbin*/
+		{(uint32_t)V_Push_V_Weld_GPIO_Port, V_Push_V_Weld_Pin, 0, 0, PRESS, 0},															// 0Macros
+		{(uint32_t)Prepare_material_GPIO_Port, Prepare_material_Pin, (uint32_t)0, 0, HOLD_UNTIL, 12000},								// 1Prepare material from bobbin
 		{(uint32_t)Dose_GPIO_Port, Dose_Pin, (uint32_t)Dose_Out_GPIO_Port, Dose_Out_Pin, TIMER, 2580},									// 2Dose motor control
 		{(uint32_t)V_Push_GPIO_Port, V_Push_Pin, (uint32_t)V_Push_Out_GPIO_Port, V_Push_Out_Pin, TOGGLE, 0},							// 3Vertical cylinder push
 		{(uint32_t)V_Weld_GPIO_Port, V_Weld_Pin, (uint32_t)V_Weld_Out_GPIO_Port, V_Weld_Out_Pin, __DELAY, 300},							// 4Vertical Weld spot
@@ -102,7 +104,7 @@ static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)Auto_Start_GPIO_Port, Auto_Start_Pin, 0, 0, TOGGLE, 0},																// 10Auto mode start
 		{(uint32_t)HOLD_Dose_GPIO_Port, HOLD_Dose_Pin, (uint32_t)Dose_Out_GPIO_Port, Dose_Out_Pin, HOLD_MOTOR, 2580},					// 11HOLD_Dose motor
 		{(uint32_t)HOLD_Pull_GPIO_Port, HOLD_Pull_Pin, (uint32_t)Pull_Out_GPIO_Port, Pull_Out_Pin, HOLD_MOTOR, 2580},					// 12HOLD_Pull motor
-		{(uint32_t)Reed_Switch_GPIO_Port, Reed_Switch_Pin, (uint32_t)Prepare_Out_GPIO_Port, Prepare_Out_Pin, -1, 2580},					// 13Reed Switch feedback
+		{(uint32_t)Reed_Switch_GPIO_Port, Reed_Switch_Pin, (uint32_t)0, 0, -1, 2580},													// 13Reed Switch feedback
 		{(uint32_t)CounterReset_GPIO_Port, CounterReset_Pin, (uint32_t)0, 0, 0, 0}														// 14Counter reset
 };
 /* USER CODE END PV */
@@ -114,7 +116,9 @@ static void MX_DMA_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_SDIO_SD_Init(void);
 static void MX_SPI2_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
+void Init(void);
 void toggle_func(struct Button *button);
 void macros1(struct Button *button);
 void Delay(uint32_t delay);
@@ -123,6 +127,7 @@ void SetSteps1(uint32_t* steps);
 void SetSteps2(uint32_t* steps);
 void TimerMotor(struct Button *Button);
 void HoldMotor(struct Button *Button, uint8_t mode);
+void HoldPrepareMotorUntill(struct Button *Button, uint8_t mode);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -137,7 +142,6 @@ void HoldMotor(struct Button *Button, uint8_t mode);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -146,14 +150,12 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -162,42 +164,10 @@ int main(void)
   MX_TIM7_Init();
   MX_SDIO_SD_Init();
   MX_SPI2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   GPIOD->ODR = ~0;
-  HAL_Delay(100);
-  ST7920_Init();
-  ST7920_Graphic_mode(1);
-  sprintf(tx_buffer, "WELCOME");
-  ST7920_Decode_UTF8(50, 3, 0, tx_buffer);
-  ST7920_Update();
-  for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
-  {
-	  Buttons[i].B_Out = 0;
-	  Buttons[i].B_State = 0;
-	  Buttons[i].B_counter = 0;
-	  Buttons[i].Lock = 0;
-	  Buttons[i].call_function = toggle_func;
-	  Buttons[i].alternate_function = 0;
-	  Buttons[i].GPIO = (GPIO_TypeDef*)Defines[i][0];
-	  Buttons[i].GPIO_Pin = Defines[i][1];
-	  Buttons[i].GPIO_Out = (GPIO_TypeDef*)Defines[i][2];
-	  Buttons[i].GPIO_Pin_Out = Defines[i][3];
-	  Buttons[i].Mode = Defines[i][4];
-	  Buttons[i].Delay = Defines[i][5];
-	  Buttons[i].addiction = 0;
-  }
-  Buttons[0].alternate_function = macros1;
-  Buttons[1].third_function = SetSteps0;
-  Buttons[2].third_function = SetSteps2;
-  Buttons[1].addiction = &Buttons[13];
-  Buttons[4].addiction = &Buttons[3];
-  Buttons[6].addiction = &Buttons[5];
-  Buttons[7].third_function = SetSteps1;
-  Buttons[9].Label = (uint8_t*)"mode";
-  Buttons[10].Label = (uint8_t*)"auto_start";
-  Buttons[13].Label = (uint8_t*)"reed_switch";
-  HAL_GPIO_WritePin(Led_1_GPIO_Port, Led_1_Pin, 1);
-  HAL_GPIO_WritePin(Led_2_GPIO_Port, Led_2_Pin, 1);
+  Init();
   HAL_Delay(700);
   ST7920_Clean();
   sprintf(tx_buffer, "Count: %lu", counter);
@@ -211,17 +181,6 @@ int main(void)
 	while(1)
 	{
 
-		/*
-		if(test.B_Out)
-		{
-			HAL_GPIO_WritePin(Led_1_GPIO_Port,Led_1_Pin,0);
-		}
-		else
-		{
-			HAL_GPIO_WritePin(Led_1_GPIO_Port,Led_1_Pin,1);
-		}
-		*/
-
 		if(!Buttons[9].B_State)
 		{
 			if(Buttons[9].B_Out == 1)
@@ -232,7 +191,6 @@ int main(void)
 					Buttons[i].B_Out = 0;
 				};
 			}
-
 			// MANUAL MODE
 			for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
 			{
@@ -280,8 +238,19 @@ int main(void)
 					}
 					if(Buttons[i].Mode == HOLD_UNTIL && Buttons[i].B_Out)
 					{
-						Buttons[i].B_Out = 0;
-						HoldMotor(Buttons[i].addiction, 1);
+						if(strcmp((const char*)Buttons[i].Label, (const char*)"Prepare"))
+						{
+							HoldPrepareMotorUntill(Buttons[i].addiction, 1);
+							if(Buttons[i].addiction->B_State == 0)
+							{
+								Buttons[i].B_Out = 0;
+							}
+						}
+						else
+						{
+							Buttons[i].B_Out = 0;
+							HoldMotor(Buttons[i].addiction, 1);
+						}
 						continue;
 					}
 				}
@@ -293,14 +262,14 @@ int main(void)
 		else
 		{
 			//AUTO MODE
-
 			if(Buttons[10].B_Out) // AUTO MODE START
 			{
-
+				/*
 				if(Buttons[13].B_State == 1) // REED SWITCH
 				{
 					HoldMotor(&Buttons[13], 1); // Prepare mat.
 				}
+				*/
 				TimerMotor(&Buttons[7]); // PULL mat.
 				HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
 				HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
@@ -317,15 +286,12 @@ int main(void)
 				TimerMotor(&Buttons[2]); // Dose
 				HAL_Delay(200);
 				counter++;
-
 			}
-
 			sprintf(tx_buffer, "Count: %lu", counter);
 			ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
 			ST7920_Update();
 		}
   }
-
   /* USER CODE END 3 */
 }
 
@@ -446,6 +412,65 @@ static void MX_SPI2_Init(void)
 }
 
 /**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 2400-1;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 6-1;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 32768;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+  HAL_TIM_MspPostInit(&htim3);
+
+}
+
+/**
   * @brief TIM7 Initialization Function
   * @param None
   * @retval None
@@ -523,18 +548,20 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, Led_1_Pin|Led_2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, Prepare_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin 
-                          |H_Push_Out_Pin|H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin|H_Push_Out_Pin 
+                          |H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(RST_GPIO_Port, RST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : Button_2_Pin Button_1_Pin CounterReset_Pin V_Push_V_Weld_Pin 
                            Prepare_material_Pin Dose_Pin V_Push_Pin V_Weld_Pin 
-                           H_Push_Pin H_Weld_Pin Pull_Pin Cut_Pin */
+                           H_Push_Pin H_Weld_Pin Pull_Pin Cut_Pin 
+                           HOLD_Pull_Pin */
   GPIO_InitStruct.Pin = Button_2_Pin|Button_1_Pin|CounterReset_Pin|V_Push_V_Weld_Pin 
                           |Prepare_material_Pin|Dose_Pin|V_Push_Pin|V_Weld_Pin 
-                          |H_Push_Pin|H_Weld_Pin|Pull_Pin|Cut_Pin;
+                          |H_Push_Pin|H_Weld_Pin|Pull_Pin|Cut_Pin 
+                          |HOLD_Pull_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -546,6 +573,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(CS_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : HOLD_Dose_Pin */
+  GPIO_InitStruct.Pin = HOLD_Dose_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(HOLD_Dose_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pins : Led_1_Pin Led_2_Pin */
   GPIO_InitStruct.Pin = Led_1_Pin|Led_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -553,16 +586,16 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : HOLD_Dose_Pin HOLD_Pull_Pin Mode_Pin Auto_Start_Pin */
-  GPIO_InitStruct.Pin = HOLD_Dose_Pin|HOLD_Pull_Pin|Mode_Pin|Auto_Start_Pin;
+  /*Configure GPIO pins : Mode_Pin Auto_Start_Pin */
+  GPIO_InitStruct.Pin = Mode_Pin|Auto_Start_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : Prepare_Out_Pin Dose_Out_Pin V_Push_Out_Pin V_Weld_Out_Pin 
-                           H_Push_Out_Pin H_Weld_Out_Pin Pull_Out_Pin Cut_Out_Pin */
-  GPIO_InitStruct.Pin = Prepare_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin 
-                          |H_Push_Out_Pin|H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin;
+  /*Configure GPIO pins : Dose_Out_Pin V_Push_Out_Pin V_Weld_Out_Pin H_Push_Out_Pin 
+                           H_Weld_Out_Pin Pull_Out_Pin Cut_Out_Pin */
+  GPIO_InitStruct.Pin = Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin|H_Push_Out_Pin 
+                          |H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -584,6 +617,44 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void Init(void)
+{
+	  HAL_Delay(100);
+	  ST7920_Init();
+	  ST7920_Graphic_mode(1);
+	  sprintf(tx_buffer, "WELCOME");
+	  ST7920_Decode_UTF8(50, 3, 0, tx_buffer);
+	  ST7920_Update();
+	  for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
+	  {
+		  Buttons[i].B_Out = 0;
+		  Buttons[i].B_State = 0;
+		  Buttons[i].B_counter = 0;
+		  Buttons[i].Lock = 0;
+		  Buttons[i].call_function = toggle_func;
+		  Buttons[i].alternate_function = 0;
+		  Buttons[i].GPIO = (GPIO_TypeDef*)Defines[i][0];
+		  Buttons[i].GPIO_Pin = Defines[i][1];
+		  Buttons[i].GPIO_Out = (GPIO_TypeDef*)Defines[i][2];
+		  Buttons[i].GPIO_Pin_Out = Defines[i][3];
+		  Buttons[i].Mode = Defines[i][4];
+		  Buttons[i].Delay = Defines[i][5];
+		  Buttons[i].addiction = 0;
+	  }
+	  Buttons[0].alternate_function = macros1;
+	  Buttons[1].Label = "Prepare";
+	  Buttons[1].third_function = SetSteps0;
+	  Buttons[1].addiction = &Buttons[13];
+	  Buttons[2].third_function = SetSteps2;
+	  Buttons[4].addiction = &Buttons[3];
+	  Buttons[6].addiction = &Buttons[5];
+	  Buttons[7].third_function = SetSteps1;
+	  Buttons[9].Label = "mode";
+	  Buttons[10].Label = "auto_start";
+	  Buttons[13].Label = "reed_switch";
+	  HAL_GPIO_WritePin(Led_1_GPIO_Port, Led_1_Pin, 1);
+	  HAL_GPIO_WritePin(Led_2_GPIO_Port, Led_2_Pin, 1);
+}
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -612,11 +683,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(Buttons[i].addiction->B_Out || Buttons[i].addiction == 0)
 				Buttons[i].call_function(&Buttons[i]);
 		}
-	}
-	if(Buttons[14].B_State && counter > 0)
-	{
-		counter = 0;
-		ST7920_Clean();
+
+		if(Buttons[14].B_Out && counter > 0)
+		{
+			Buttons[14].B_Out = 0;
+			counter = 0;
+			ST7920_Clean();
+		}
+		if(Buttons[10].B_Out)
+		{
+			HoldPrepareMotorUntill(Buttons[1].addiction, 1);
+		}
 	}
 }
 
@@ -676,6 +753,7 @@ void macros1(struct Button *button)
 
 void HoldMotor(struct Button *Button, uint8_t mode)
 {
+
 	uint16_t Limitation = 10000;
 	uint16_t temp = 0;
 	for(uint32_t j = 0; j < 10; j++)
@@ -693,6 +771,24 @@ void HoldMotor(struct Button *Button, uint8_t mode)
 		Delay(Button->Delay/2 - temp);
 		HAL_GPIO_WritePin(Button->GPIO_Out, Button->GPIO_Pin_Out, 1);
 		Delay(Button->Delay/2 - temp);
+	}
+
+}
+
+void HoldPrepareMotorUntill(struct Button *Button, uint8_t mode)
+{
+	static bool flag = false;
+	if(Button->B_State == mode)
+	{
+		if(flag == false)
+		{
+			HAL_TIM_PWM_Start(&htim3, 1);
+			flag = true;
+		}
+	}
+	else
+	{
+		HAL_TIM_PWM_Stop(&htim3, 1);
 	}
 }
 
