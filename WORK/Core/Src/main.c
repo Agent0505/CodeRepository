@@ -523,18 +523,23 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, Led_1_Pin|Led_2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, Prepare_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin 
-                          |H_Push_Out_Pin|H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin|H_Push_Out_Pin 
+                          |H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(Prepare_Out_GPIO_Port, Prepare_Out_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(RST_GPIO_Port, RST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : Button_2_Pin Button_1_Pin CounterReset_Pin V_Push_V_Weld_Pin 
                            Prepare_material_Pin Dose_Pin V_Push_Pin V_Weld_Pin 
-                           H_Push_Pin H_Weld_Pin Pull_Pin Cut_Pin */
+                           H_Push_Pin H_Weld_Pin Pull_Pin Cut_Pin 
+                           HOLD_Pull_Pin */
   GPIO_InitStruct.Pin = Button_2_Pin|Button_1_Pin|CounterReset_Pin|V_Push_V_Weld_Pin 
                           |Prepare_material_Pin|Dose_Pin|V_Push_Pin|V_Weld_Pin 
-                          |H_Push_Pin|H_Weld_Pin|Pull_Pin|Cut_Pin;
+                          |H_Push_Pin|H_Weld_Pin|Pull_Pin|Cut_Pin 
+                          |HOLD_Pull_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -546,6 +551,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(CS_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : HOLD_Dose_Pin PC1 */
+  GPIO_InitStruct.Pin = HOLD_Dose_Pin|GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
   /*Configure GPIO pins : Led_1_Pin Led_2_Pin */
   GPIO_InitStruct.Pin = Led_1_Pin|Led_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -553,20 +564,27 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : HOLD_Dose_Pin HOLD_Pull_Pin Mode_Pin Auto_Start_Pin */
-  GPIO_InitStruct.Pin = HOLD_Dose_Pin|HOLD_Pull_Pin|Mode_Pin|Auto_Start_Pin;
+  /*Configure GPIO pins : Mode_Pin Auto_Start_Pin */
+  GPIO_InitStruct.Pin = Mode_Pin|Auto_Start_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : Prepare_Out_Pin Dose_Out_Pin V_Push_Out_Pin V_Weld_Out_Pin 
-                           H_Push_Out_Pin H_Weld_Out_Pin Pull_Out_Pin Cut_Out_Pin */
-  GPIO_InitStruct.Pin = Prepare_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin 
-                          |H_Push_Out_Pin|H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin;
+  /*Configure GPIO pins : Dose_Out_Pin V_Push_Out_Pin V_Weld_Out_Pin H_Push_Out_Pin 
+                           H_Weld_Out_Pin Pull_Out_Pin Cut_Out_Pin */
+  GPIO_InitStruct.Pin = Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin|H_Push_Out_Pin 
+                          |H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Prepare_Out_Pin */
+  GPIO_InitStruct.Pin = Prepare_Out_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(Prepare_Out_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Reed_Switch_Pin STOP_Pin */
   GPIO_InitStruct.Pin = Reed_Switch_Pin|STOP_Pin;

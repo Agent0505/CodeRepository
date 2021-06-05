@@ -66,14 +66,12 @@ void Error_Handler(void);
 #define CS_GPIO_Port GPIOE
 #define CounterReset_Pin GPIO_PIN_6
 #define CounterReset_GPIO_Port GPIOE
+#define HOLD_Dose_Pin GPIO_PIN_13
+#define HOLD_Dose_GPIO_Port GPIOC
 #define Led_1_Pin GPIO_PIN_6
 #define Led_1_GPIO_Port GPIOA
 #define Led_2_Pin GPIO_PIN_7
 #define Led_2_GPIO_Port GPIOA
-#define HOLD_Dose_Pin GPIO_PIN_0
-#define HOLD_Dose_GPIO_Port GPIOB
-#define HOLD_Pull_Pin GPIO_PIN_1
-#define HOLD_Pull_GPIO_Port GPIOB
 #define V_Push_V_Weld_Pin GPIO_PIN_7
 #define V_Push_V_Weld_GPIO_Port GPIOE
 #define Prepare_material_Pin GPIO_PIN_8
@@ -96,8 +94,6 @@ void Error_Handler(void);
 #define Mode_GPIO_Port GPIOB
 #define Auto_Start_Pin GPIO_PIN_11
 #define Auto_Start_GPIO_Port GPIOB
-#define Prepare_Out_Pin GPIO_PIN_8
-#define Prepare_Out_GPIO_Port GPIOD
 #define Dose_Out_Pin GPIO_PIN_9
 #define Dose_Out_GPIO_Port GPIOD
 #define V_Push_Out_Pin GPIO_PIN_10
@@ -112,12 +108,16 @@ void Error_Handler(void);
 #define Pull_Out_GPIO_Port GPIOD
 #define Cut_Out_Pin GPIO_PIN_15
 #define Cut_Out_GPIO_Port GPIOD
+#define Prepare_Out_Pin GPIO_PIN_6
+#define Prepare_Out_GPIO_Port GPIOC
 #define Reed_Switch_Pin GPIO_PIN_3
 #define Reed_Switch_GPIO_Port GPIOD
 #define STOP_Pin GPIO_PIN_4
 #define STOP_GPIO_Port GPIOD
 #define RST_Pin GPIO_PIN_7
 #define RST_GPIO_Port GPIOB
+#define HOLD_Pull_Pin GPIO_PIN_1
+#define HOLD_Pull_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
