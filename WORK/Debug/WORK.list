@@ -4420,7 +4420,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  80024d6:	73bb      	strb	r3, [r7, #14]
  80024d8:	e027      	b.n	800252a <HAL_TIM_PeriodElapsedCallback+0xd2>
 		{
-			if(Buttons[i].addiction->B_Out || Buttons[i].addiction == 0)
+			if(Buttons[i].addiction->B_Out == 1 || Buttons[i].addiction == 0)
  80024da:	7bbb      	ldrb	r3, [r7, #14]
  80024dc:	4a2a      	ldr	r2, [pc, #168]	; (8002588 <HAL_TIM_PeriodElapsedCallback+0x130>)
  80024de:	212c      	movs	r1, #44	; 0x2c
@@ -4429,8 +4429,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  80024e6:	331c      	adds	r3, #28
  80024e8:	681b      	ldr	r3, [r3, #0]
  80024ea:	7d1b      	ldrb	r3, [r3, #20]
- 80024ec:	2b00      	cmp	r3, #0
- 80024ee:	d109      	bne.n	8002504 <HAL_TIM_PeriodElapsedCallback+0xac>
+ 80024ec:	2b01      	cmp	r3, #1
+ 80024ee:	d009      	beq.n	8002504 <HAL_TIM_PeriodElapsedCallback+0xac>
  80024f0:	7bbb      	ldrb	r3, [r7, #14]
  80024f2:	4a25      	ldr	r2, [pc, #148]	; (8002588 <HAL_TIM_PeriodElapsedCallback+0x130>)
  80024f4:	212c      	movs	r1, #44	; 0x2c

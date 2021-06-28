@@ -741,7 +741,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		}
 		for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
 		{
-			if(Buttons[i].addiction->B_Out || Buttons[i].addiction == 0)
+			if(Buttons[i].addiction->B_Out == 1 || Buttons[i].addiction == 0)
 				Buttons[i].call_function(&Buttons[i]);
 		}
 
