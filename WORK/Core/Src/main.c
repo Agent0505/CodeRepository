@@ -79,6 +79,7 @@ SPI_HandleTypeDef hspi2;
 DMA_HandleTypeDef hdma_spi2_tx;
 
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN PV */
@@ -86,9 +87,12 @@ TIM_HandleTypeDef htim7;
 extern char tx_buffer[128]; //Буфер для отправки текста на дисплей
 extern uint8_t Frame_buffer[1024]; //Буфер кадра
 
+static uint32_t Pullsteps = PULL_STEPS, Dosesteps = STEPS;
 uint32_t counter = 0, count_prev = 0;
 
-#define BUTTONS_COUNT 15
+char tmpflg = 0;
+
+#define BUTTONS_COUNT 16
 struct Button Buttons[BUTTONS_COUNT];
 static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)V_Push_V_Weld_GPIO_Port, V_Push_V_Weld_Pin, 0, 0, PRESS, 0},															// 0Macros
@@ -105,7 +109,8 @@ static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)HOLD_Dose_GPIO_Port, HOLD_Dose_Pin, (uint32_t)Dose_Out_GPIO_Port, Dose_Out_Pin, HOLD_MOTOR, 2580},					// 11HOLD_Dose motor
 		{(uint32_t)HOLD_Pull_GPIO_Port, HOLD_Pull_Pin, (uint32_t)Pull_Out_GPIO_Port, Pull_Out_Pin, HOLD_MOTOR, 2580},					// 12HOLD_Pull motor
 		{(uint32_t)Reed_Switch_GPIO_Port, Reed_Switch_Pin, (uint32_t)0, 0, -1, 2580},													// 13Reed Switch feedback
-		{(uint32_t)CounterReset_GPIO_Port, CounterReset_Pin, (uint32_t)0, 0, 0, 0}														// 14Counter reset
+		{(uint32_t)CounterReset_GPIO_Port, CounterReset_Pin, (uint32_t)0, 0, 0, 0},														// 14Counter reset
+		{(uint32_t)Size_Select_GPIO_Port, Size_Select_Pin, (uint32_t)0, 0, 0, 0}														// 15Pocket size select
 };
 /* USER CODE END PV */
 
@@ -114,9 +119,10 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM7_Init(void);
-static void MX_SDIO_SD_Init(void);
+//static void MX_SDIO_SD_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 void Init(void);
 void toggle_func(struct Button *button);
@@ -160,11 +166,13 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  GPIOD->ODR = ~0;
   MX_DMA_Init();
   MX_TIM7_Init();
-  MX_SDIO_SD_Init();
+  //MX_SDIO_SD_Init();
   MX_SPI2_Init();
   MX_TIM3_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
   GPIOD->ODR = ~0;
   Init();
@@ -172,8 +180,8 @@ int main(void)
   ST7920_Clean();
   sprintf(tx_buffer, "Count: %lu", counter);
   ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
-  ST7920_Update();
   HAL_TIM_Base_Start_IT(&htim7);
+  HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -183,6 +191,7 @@ int main(void)
 
 		if(!Buttons[9].B_State)
 		{
+			tmpflg = 1;
 			if(Buttons[9].B_Out == 1)
 			{
 				Buttons[9].B_Out = 0;
@@ -238,19 +247,8 @@ int main(void)
 					}
 					if(Buttons[i].Mode == HOLD_UNTIL && Buttons[i].B_Out)
 					{
-						if(strcmp((const char*)Buttons[i].Label, (const char*)"Prepare"))
-						{
-							HoldPrepareMotorUntill(Buttons[i].addiction, 1);
-							if(Buttons[i].addiction->B_State == 0)
-							{
-								Buttons[i].B_Out = 0;
-							}
-						}
-						else
-						{
-							Buttons[i].B_Out = 0;
-							HoldMotor(Buttons[i].addiction, 1);
-						}
+						HoldPrepareMotorUntill(Buttons[i].addiction, 1);
+						Buttons[i].B_Out = 0;
 						continue;
 					}
 				}
@@ -261,6 +259,11 @@ int main(void)
     /* USER CODE BEGIN 3 */
 		else
 		{
+			if(tmpflg)
+			{
+				tmpflg = 0;
+				Buttons[10].B_Out = 0;
+			}
 			//AUTO MODE
 			if(Buttons[10].B_Out) // AUTO MODE START
 			{
@@ -270,20 +273,44 @@ int main(void)
 					HoldMotor(&Buttons[13], 1); // Prepare mat.
 				}
 				*/
-				TimerMotor(&Buttons[7]); // PULL mat.
-				HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
-				HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
-				HAL_Delay(200);
-				HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 0); // CUT
-				HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[4].GPIO_Pin_Out, 0); // Weld
-				HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0); // Weld
-				HAL_Delay(300);
-				HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 1); /*Release*/
-				HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1);
-				HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 1);
-				HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1);
-				HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
-				TimerMotor(&Buttons[2]); // Dose
+				if(Buttons[15].B_State == 1)
+				{
+					Pullsteps = PULL_STEPS;
+					Dosesteps = STEPS;
+					TimerMotor(&Buttons[7]); // PULL mat.
+					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
+					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
+					HAL_Delay(200);
+					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 0); // CUT
+					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[4].GPIO_Pin_Out, 0); // Weld
+					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0); // Weld
+					HAL_Delay(300);
+					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 1); /*Release*/
+					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1);
+					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 1);
+					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1);
+					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
+					TimerMotor(&Buttons[2]); // Dose
+				}
+				else
+				{
+					Pullsteps = PULL_STEPS / 2;
+					Dosesteps = STEPS / 2;
+					TimerMotor(&Buttons[7]); // PULL mat.
+					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
+					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
+					HAL_Delay(200);
+					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 0); // CUT
+					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[4].GPIO_Pin_Out, 0); // Weld
+					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0); // Weld
+					HAL_Delay(300);
+					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 1); /*Release*/
+					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1);
+					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 1);
+					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1);
+					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
+					TimerMotor(&Buttons[2]); // Dose
+				}
 				HAL_Delay(200);
 				counter++;
 			}
@@ -342,16 +369,10 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_SDIO_SD_Init(void)
+/*static void MX_SDIO_SD_Init(void)
 {
 
-  /* USER CODE BEGIN SDIO_Init 0 */
 
-  /* USER CODE END SDIO_Init 0 */
-
-  /* USER CODE BEGIN SDIO_Init 1 */
-
-  /* USER CODE END SDIO_Init 1 */
   hsd.Instance = SDIO;
   hsd.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
   hsd.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
@@ -367,11 +388,9 @@ static void MX_SDIO_SD_Init(void)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN SDIO_Init 2 */
 
-  /* USER CODE END SDIO_Init 2 */
 
-}
+}*/
 
 /**
   * @brief SPI2 Initialization Function
@@ -467,6 +486,44 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 2 */
   HAL_TIM_MspPostInit(&htim3);
+
+}
+
+/**
+  * @brief TIM6 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 24000-1;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 500;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+
+  /* USER CODE END TIM6_Init 2 */
 
 }
 
@@ -579,6 +636,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(HOLD_Dose_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : Size_Select_Pin */
+  GPIO_InitStruct.Pin = Size_Select_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Size_Select_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pins : Led_1_Pin Led_2_Pin */
   GPIO_InitStruct.Pin = Led_1_Pin|Led_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -663,21 +726,19 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-
-	if(HAL_GPIO_ReadPin(STOP_GPIO_Port, STOP_Pin) == 0)
-	{
-		for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
-		{
-			HAL_GPIO_WritePin(Buttons[i].GPIO_Out, Buttons[i].GPIO_Pin_Out, 1);
-		}
-		HAL_TIM_Base_Stop_IT(&htim7);
-		Delay(4800000);
-		while(HAL_GPIO_ReadPin(STOP_GPIO_Port, STOP_Pin) == 0){asm("NOP");};
-		HAL_NVIC_SystemReset();
-	}
-
 	if (htim->Instance==TIM7)
 	{
+		if(HAL_GPIO_ReadPin(STOP_GPIO_Port, STOP_Pin) == 0)
+		{
+			for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
+			{
+				HAL_GPIO_WritePin(Buttons[i].GPIO_Out, Buttons[i].GPIO_Pin_Out, 1);
+			}
+			HAL_TIM_Base_Stop_IT(&htim7);
+			Delay(4800000);
+			while(HAL_GPIO_ReadPin(STOP_GPIO_Port, STOP_Pin) == 0){asm("NOP");};
+			HAL_NVIC_SystemReset();
+		}
 		for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
 		{
 			if(Buttons[i].addiction->B_Out || Buttons[i].addiction == 0)
@@ -694,6 +755,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		{
 			HoldPrepareMotorUntill(Buttons[1].addiction, 1);
 		}
+	}
+	if (htim->Instance==TIM6)
+	{
+		ST7920_Update();
 	}
 }
 
@@ -821,12 +886,12 @@ void TimerMotor(struct Button *Button)
 
 void SetSteps1(uint32_t* steps)
 {
-	*(steps) = PULL_STEPS;
+	*(steps) = Pullsteps;
 }
 
 void SetSteps2(uint32_t* steps)
 {
-	*(steps) = STEPS;
+	*(steps) = Dosesteps;
 }
 
 void SetSteps0(uint32_t* steps)

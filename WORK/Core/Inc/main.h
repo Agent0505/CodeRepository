@@ -70,6 +70,8 @@ void Error_Handler(void);
 #define CounterReset_GPIO_Port GPIOE
 #define HOLD_Dose_Pin GPIO_PIN_13
 #define HOLD_Dose_GPIO_Port GPIOC
+#define Size_Select_Pin GPIO_PIN_1
+#define Size_Select_GPIO_Port GPIOC
 #define Led_1_Pin GPIO_PIN_6
 #define Led_1_GPIO_Port GPIOA
 #define Led_2_Pin GPIO_PIN_7
