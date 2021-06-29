@@ -73,8 +73,6 @@ struct Button
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SD_HandleTypeDef hsd;
-
 SPI_HandleTypeDef hspi2;
 DMA_HandleTypeDef hdma_spi2_tx;
 
@@ -108,7 +106,7 @@ static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)Auto_Start_GPIO_Port, Auto_Start_Pin, 0, 0, TOGGLE, 0},																// 10Auto mode start
 		{(uint32_t)HOLD_Dose_GPIO_Port, HOLD_Dose_Pin, (uint32_t)Dose_Out_GPIO_Port, Dose_Out_Pin, HOLD_MOTOR, 2580},					// 11HOLD_Dose motor
 		{(uint32_t)HOLD_Pull_GPIO_Port, HOLD_Pull_Pin, (uint32_t)Pull_Out_GPIO_Port, Pull_Out_Pin, HOLD_MOTOR, 2580},					// 12HOLD_Pull motor
-		{(uint32_t)Reed_Switch_GPIO_Port, Reed_Switch_Pin, (uint32_t)0, 0, -1, 2580},													// 13Reed Switch feedback
+		{(uint32_t)Reed_Switch_GPIO_Port, Reed_Switch_Pin, (uint32_t)0, 0, 200, 2580},													// 13Reed Switch feedback
 		{(uint32_t)CounterReset_GPIO_Port, CounterReset_Pin, (uint32_t)0, 0, 0, 0},														// 14Counter reset
 		{(uint32_t)Size_Select_GPIO_Port, Size_Select_Pin, (uint32_t)0, 0, 0, 0}														// 15Pocket size select
 };
@@ -119,7 +117,6 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM7_Init(void);
-//static void MX_SDIO_SD_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM6_Init(void);
@@ -166,10 +163,8 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  GPIOD->ODR = ~0;
   MX_DMA_Init();
   MX_TIM7_Init();
-  //MX_SDIO_SD_Init();
   MX_SPI2_Init();
   MX_TIM3_Init();
   MX_TIM6_Init();
@@ -248,10 +243,11 @@ int main(void)
 					if(Buttons[i].Mode == HOLD_UNTIL && Buttons[i].B_Out)
 					{
 						HoldPrepareMotorUntill(Buttons[i].addiction, 1);
-						Buttons[i].B_Out = 0;
+						//Buttons[i].B_Out = 0;
 						continue;
 					}
 				}
+				if(Buttons[i].Mode == 200) {Buttons[i].B_Out = 0;}
 			}
 		}
     /* USER CODE END WHILE */
@@ -365,34 +361,6 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief SDIO Initialization Function
-  * @param None
-  * @retval None
-  */
-/*static void MX_SDIO_SD_Init(void)
-{
-
-
-  hsd.Instance = SDIO;
-  hsd.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
-  hsd.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
-  hsd.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
-  hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
-  hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
-  hsd.Init.ClockDiv = 0;
-  if (HAL_SD_Init(&hsd) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-
-}*/
-
-/**
   * @brief SPI2 Initialization Function
   * @param None
   * @retval None
@@ -450,11 +418,11 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 2400-1;
+  htim3.Init.Prescaler = 240;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 6-1;
-  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  htim3.Init.Period = 116;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV4;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
@@ -475,9 +443,9 @@ static void MX_TIM3_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 32768;
+  sConfigOC.Pulse = 58;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
@@ -626,21 +594,15 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : CS_Pin */
   GPIO_InitStruct.Pin = CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(CS_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : HOLD_Dose_Pin */
-  GPIO_InitStruct.Pin = HOLD_Dose_Pin;
+  /*Configure GPIO pins : HOLD_Dose_Pin Size_Select_Pin */
+  GPIO_InitStruct.Pin = HOLD_Dose_Pin|Size_Select_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(HOLD_Dose_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : Size_Select_Pin */
-  GPIO_InitStruct.Pin = Size_Select_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Size_Select_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Led_1_Pin Led_2_Pin */
   GPIO_InitStruct.Pin = Led_1_Pin|Led_2_Pin;
@@ -673,7 +635,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : RST_Pin */
   GPIO_InitStruct.Pin = RST_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(RST_GPIO_Port, &GPIO_InitStruct);
 
@@ -741,7 +703,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		}
 		for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
 		{
-			if(Buttons[i].addiction->B_Out == 1 || Buttons[i].addiction == 0)
+			if((Buttons[i].addiction->B_Out == 1 && Buttons[i].Mode == __DELAY) || Buttons[i].addiction == 0 || Buttons[i].Mode != __DELAY)
 				Buttons[i].call_function(&Buttons[i]);
 		}
 
@@ -847,13 +809,15 @@ void HoldPrepareMotorUntill(struct Button *Button, uint8_t mode)
 	{
 		if(flag == false)
 		{
-			HAL_TIM_PWM_Start(&htim3, 1);
+			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 			flag = true;
 		}
 	}
 	else
 	{
-		HAL_TIM_PWM_Stop(&htim3, 1);
+		HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+		flag = false;
+		Buttons[1].B_Out = 0;
 	}
 }
 
