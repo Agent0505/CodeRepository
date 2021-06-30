@@ -64,7 +64,7 @@ struct Button
 #define STEPS 4600
 #define ACCEL 800
 
-#define PULL_STEPS 1100
+#define PULL_STEPS 1590
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -89,6 +89,8 @@ static uint32_t Pullsteps = PULL_STEPS, Dosesteps = STEPS;
 uint32_t counter = 0, count_prev = 0;
 
 char tmpflg = 0;
+
+static bool flag = false;
 
 #define BUTTONS_COUNT 16
 struct Button Buttons[BUTTONS_COUNT];
@@ -278,9 +280,10 @@ int main(void)
 			#define WELD_TIME HAL_Delay(300);
 			if(Buttons[10].B_Out) // AUTO MODE START
 			{
+
 				if(Buttons[15].B_State == 1)
 				{
-					Pullsteps = PULL_STEPS;
+					Pullsteps = PULL_STEPS / 2;
 					Dosesteps = STEPS;
 					//Pull new material
 					PULL
@@ -291,19 +294,33 @@ int main(void)
 					PUSH_V
 
 					CYCLE_DELAY
-					//Welding
+					//Welding stage 1
 					WELD_H_START
 					WELD_V_START
 					WELD_TIME
 					WELD_H_STOP
 					WELD_V_STOP
-					CUT_START
+					RELEASE_H
+					RELEASE_V
 
+					CYCLE_DELAY
+					//Pull stage 2
+					PULL
+
+					CYCLE_DELAY
+					//Clamp material
+					PUSH_V
+
+					CYCLE_DELAY
+					//Welding stage 2
+					WELD_V_START
+					WELD_TIME
+					WELD_V_STOP
+					CUT_START
 					CYCLE_DELAY
 					//Cut, fill, release
 					CUT_RELEASE
 					DOSE
-					RELEASE_H
 					RELEASE_V
 
 					CYCLE_DELAY
@@ -329,6 +346,11 @@ int main(void)
 				}
 				HAL_Delay(200);
 				counter++;
+			}
+			else if(flag == true)
+			{
+				flag = false;
+				HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			}
 			sprintf(tx_buffer, "Count: %lu", counter);
 			ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
@@ -824,7 +846,6 @@ void HoldMotor(struct Button *Button, uint8_t mode)
 
 void HoldPrepareMotorUntill(struct Button *Button, uint8_t mode)
 {
-	static bool flag = false;
 	if(Button->B_State == mode)
 	{
 		if(flag == false)
