@@ -264,8 +264,8 @@ int main(void)
 				Buttons[10].B_Out = 0;
 			}
 			//AUTO MODE
-			#define PUSH_H HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
-			#define PUSH_V HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
+			#define PUSH_V HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
+			#define PUSH_H HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
 			#define RELEASE_H HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1); //Release
 			#define RELEASE_V HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1); //Release
 			#define CUT_START HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 0); // CUT
@@ -339,7 +339,10 @@ int main(void)
 					WELD_TIME
 					WELD_H_STOP
 					WELD_V_STOP
+					DOSE
+					CUT_START
 					CYCLE_DELAY
+					CUT_RELEASE
 					RELEASE_H
 					RELEASE_V
 					CYCLE_DELAY
