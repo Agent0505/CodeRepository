@@ -189,6 +189,7 @@ int main(void)
 			tmpflg = 1;
 			if(Buttons[9].B_Out == 1)
 			{
+				HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 				Buttons[9].B_Out = 0;
 				for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
 				{
@@ -261,51 +262,70 @@ int main(void)
 				Buttons[10].B_Out = 0;
 			}
 			//AUTO MODE
+			#define PUSH_H HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
+			#define PUSH_V HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
+			#define RELEASE_H HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1); //Release
+			#define RELEASE_V HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1); //Release
+			#define CUT_START HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 0); // CUT
+			#define CUT_RELEASE HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 1); //Release
+			#define WELD_H_START HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 0); // Weld
+			#define WELD_V_START HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0); // Weld
+			#define WELD_H_STOP HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 1);
+			#define WELD_V_STOP HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
+			#define PULL TimerMotor(&Buttons[7]); // PULL mat.
+			#define DOSE TimerMotor(&Buttons[2]); // Dose
+			#define CYCLE_DELAY HAL_Delay(75);
+			#define WELD_TIME HAL_Delay(300);
 			if(Buttons[10].B_Out) // AUTO MODE START
 			{
-				/*
-				if(Buttons[13].B_State == 1) // REED SWITCH
-				{
-					HoldMotor(&Buttons[13], 1); // Prepare mat.
-				}
-				*/
 				if(Buttons[15].B_State == 1)
 				{
 					Pullsteps = PULL_STEPS;
 					Dosesteps = STEPS;
-					TimerMotor(&Buttons[7]); // PULL mat.
-					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
-					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
-					HAL_Delay(200);
-					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 0); // CUT
-					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[4].GPIO_Pin_Out, 0); // Weld
-					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0); // Weld
-					HAL_Delay(300);
-					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 1); /*Release*/
-					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1);
-					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 1);
-					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1);
-					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
-					TimerMotor(&Buttons[2]); // Dose
+					//Pull new material
+					PULL
+
+					CYCLE_DELAY
+					//Clamp material
+					PUSH_H
+					PUSH_V
+
+					CYCLE_DELAY
+					//Welding
+					WELD_H_START
+					WELD_V_START
+					WELD_TIME
+					WELD_H_STOP
+					WELD_V_STOP
+					CUT_START
+
+					CYCLE_DELAY
+					//Cut, fill, release
+					CUT_RELEASE
+					DOSE
+					RELEASE_H
+					RELEASE_V
+
+					CYCLE_DELAY
 				}
 				else
 				{
 					Pullsteps = PULL_STEPS / 2;
 					Dosesteps = STEPS / 2;
-					TimerMotor(&Buttons[7]); // PULL mat.
-					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
-					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
-					HAL_Delay(200);
-					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 0); // CUT
-					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[4].GPIO_Pin_Out, 0); // Weld
-					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0); // Weld
-					HAL_Delay(300);
-					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 1); /*Release*/
-					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1);
-					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 1);
-					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1);
-					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
-					TimerMotor(&Buttons[2]); // Dose
+					PULL
+					CYCLE_DELAY
+					PUSH_H
+					PUSH_V
+					CYCLE_DELAY
+					WELD_H_START
+					WELD_V_START
+					WELD_TIME
+					WELD_H_STOP
+					WELD_V_STOP
+					CYCLE_DELAY
+					RELEASE_H
+					RELEASE_V
+					CYCLE_DELAY
 				}
 				HAL_Delay(200);
 				counter++;

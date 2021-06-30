@@ -35,15 +35,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  15 .debug_ranges 00000c28  00000000  00000000  000309b8  2**3
                   CONTENTS, READONLY, DEBUGGING
- 16 .debug_macro  00021411  00000000  00000000  000315e0  2**0
+ 16 .debug_macro  00021473  00000000  00000000  000315e0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 17 .debug_line   00009cb3  00000000  00000000  000529f1  2**0
+ 17 .debug_line   00009cba  00000000  00000000  00052a53  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    000c9c4c  00000000  00000000  0005c6a4  2**0
+ 18 .debug_str    000c9fcf  00000000  00000000  0005c70d  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  001262f0  2**0
+ 19 .comment      0000007b  00000000  00000000  001266dc  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00004050  00000000  00000000  0012636c  2**2
+ 20 .debug_frame  00004050  00000000  00000000  00126758  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -2334,7 +2334,7 @@ int main(void)
  800161a:	f000 fc71 	bl	8001f00 <MX_TIM6_Init>
   /* USER CODE BEGIN 2 */
   GPIOD->ODR = ~0;
- 800161e:	4ba5      	ldr	r3, [pc, #660]	; (80018b4 <main+0x2bc>)
+ 800161e:	4ba7      	ldr	r3, [pc, #668]	; (80018bc <main+0x2c4>)
  8001620:	f04f 32ff 	mov.w	r2, #4294967295
  8001624:	615a      	str	r2, [r3, #20]
   Init();
@@ -2345,23 +2345,23 @@ int main(void)
   ST7920_Clean();
  8001632:	f7ff fd12 	bl	800105a <ST7920_Clean>
   sprintf(tx_buffer, "Count: %lu", counter);
- 8001636:	4ba0      	ldr	r3, [pc, #640]	; (80018b8 <main+0x2c0>)
+ 8001636:	4ba2      	ldr	r3, [pc, #648]	; (80018c0 <main+0x2c8>)
  8001638:	681b      	ldr	r3, [r3, #0]
  800163a:	461a      	mov	r2, r3
- 800163c:	499f      	ldr	r1, [pc, #636]	; (80018bc <main+0x2c4>)
- 800163e:	48a0      	ldr	r0, [pc, #640]	; (80018c0 <main+0x2c8>)
+ 800163c:	49a1      	ldr	r1, [pc, #644]	; (80018c4 <main+0x2cc>)
+ 800163e:	48a2      	ldr	r0, [pc, #648]	; (80018c8 <main+0x2d0>)
  8001640:	f004 fe14 	bl	800626c <siprintf>
   ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
- 8001644:	4b9e      	ldr	r3, [pc, #632]	; (80018c0 <main+0x2c8>)
+ 8001644:	4ba0      	ldr	r3, [pc, #640]	; (80018c8 <main+0x2d0>)
  8001646:	2200      	movs	r2, #0
  8001648:	2104      	movs	r1, #4
  800164a:	2014      	movs	r0, #20
  800164c:	f7ff feda 	bl	8001404 <ST7920_Decode_UTF8>
   HAL_TIM_Base_Start_IT(&htim7);
- 8001650:	489c      	ldr	r0, [pc, #624]	; (80018c4 <main+0x2cc>)
+ 8001650:	489e      	ldr	r0, [pc, #632]	; (80018cc <main+0x2d4>)
  8001652:	f003 fa14 	bl	8004a7e <HAL_TIM_Base_Start_IT>
   HAL_TIM_Base_Start_IT(&htim6);
- 8001656:	489c      	ldr	r0, [pc, #624]	; (80018c8 <main+0x2d0>)
+ 8001656:	489e      	ldr	r0, [pc, #632]	; (80018d0 <main+0x2d8>)
  8001658:	f003 fa11 	bl	8004a7e <HAL_TIM_Base_Start_IT>
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -2369,798 +2369,809 @@ int main(void)
 	{
 
 		if(!Buttons[9].B_State)
- 800165c:	4b9b      	ldr	r3, [pc, #620]	; (80018cc <main+0x2d4>)
+ 800165c:	4b9d      	ldr	r3, [pc, #628]	; (80018d4 <main+0x2dc>)
  800165e:	f893 319f 	ldrb.w	r3, [r3, #415]	; 0x19f
  8001662:	2b00      	cmp	r3, #0
- 8001664:	f040 81f9 	bne.w	8001a5a <main+0x462>
+ 8001664:	f040 81ff 	bne.w	8001a66 <main+0x46e>
 		{
 			tmpflg = 1;
- 8001668:	4b99      	ldr	r3, [pc, #612]	; (80018d0 <main+0x2d8>)
+ 8001668:	4b9b      	ldr	r3, [pc, #620]	; (80018d8 <main+0x2e0>)
  800166a:	2201      	movs	r2, #1
  800166c:	701a      	strb	r2, [r3, #0]
 			if(Buttons[9].B_Out == 1)
- 800166e:	4b97      	ldr	r3, [pc, #604]	; (80018cc <main+0x2d4>)
+ 800166e:	4b99      	ldr	r3, [pc, #612]	; (80018d4 <main+0x2dc>)
  8001670:	f893 31a0 	ldrb.w	r3, [r3, #416]	; 0x1a0
  8001674:	2b01      	cmp	r3, #1
- 8001676:	d115      	bne.n	80016a4 <main+0xac>
+ 8001676:	d119      	bne.n	80016ac <main+0xb4>
 			{
+				HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+ 8001678:	2100      	movs	r1, #0
+ 800167a:	4898      	ldr	r0, [pc, #608]	; (80018dc <main+0x2e4>)
+ 800167c:	f003 fac2 	bl	8004c04 <HAL_TIM_PWM_Stop>
 				Buttons[9].B_Out = 0;
- 8001678:	4b94      	ldr	r3, [pc, #592]	; (80018cc <main+0x2d4>)
- 800167a:	2200      	movs	r2, #0
- 800167c:	f883 21a0 	strb.w	r2, [r3, #416]	; 0x1a0
+ 8001680:	4b94      	ldr	r3, [pc, #592]	; (80018d4 <main+0x2dc>)
+ 8001682:	2200      	movs	r2, #0
+ 8001684:	f883 21a0 	strb.w	r2, [r3, #416]	; 0x1a0
 				for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
- 8001680:	2300      	movs	r3, #0
- 8001682:	71fb      	strb	r3, [r7, #7]
- 8001684:	e00b      	b.n	800169e <main+0xa6>
+ 8001688:	2300      	movs	r3, #0
+ 800168a:	71fb      	strb	r3, [r7, #7]
+ 800168c:	e00b      	b.n	80016a6 <main+0xae>
 				{
 					Buttons[i].B_Out = 0;
- 8001686:	79fb      	ldrb	r3, [r7, #7]
- 8001688:	4a90      	ldr	r2, [pc, #576]	; (80018cc <main+0x2d4>)
- 800168a:	212c      	movs	r1, #44	; 0x2c
- 800168c:	fb01 f303 	mul.w	r3, r1, r3
- 8001690:	4413      	add	r3, r2
- 8001692:	3314      	adds	r3, #20
- 8001694:	2200      	movs	r2, #0
- 8001696:	701a      	strb	r2, [r3, #0]
+ 800168e:	79fb      	ldrb	r3, [r7, #7]
+ 8001690:	4a90      	ldr	r2, [pc, #576]	; (80018d4 <main+0x2dc>)
+ 8001692:	212c      	movs	r1, #44	; 0x2c
+ 8001694:	fb01 f303 	mul.w	r3, r1, r3
+ 8001698:	4413      	add	r3, r2
+ 800169a:	3314      	adds	r3, #20
+ 800169c:	2200      	movs	r2, #0
+ 800169e:	701a      	strb	r2, [r3, #0]
 				for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
- 8001698:	79fb      	ldrb	r3, [r7, #7]
- 800169a:	3301      	adds	r3, #1
- 800169c:	71fb      	strb	r3, [r7, #7]
- 800169e:	79fb      	ldrb	r3, [r7, #7]
- 80016a0:	2b0f      	cmp	r3, #15
- 80016a2:	d9f0      	bls.n	8001686 <main+0x8e>
+ 80016a0:	79fb      	ldrb	r3, [r7, #7]
+ 80016a2:	3301      	adds	r3, #1
+ 80016a4:	71fb      	strb	r3, [r7, #7]
+ 80016a6:	79fb      	ldrb	r3, [r7, #7]
+ 80016a8:	2b0f      	cmp	r3, #15
+ 80016aa:	d9f0      	bls.n	800168e <main+0x96>
 				};
 			}
 			// MANUAL MODE
 			for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
- 80016a4:	2300      	movs	r3, #0
- 80016a6:	71bb      	strb	r3, [r7, #6]
- 80016a8:	e1d2      	b.n	8001a50 <main+0x458>
+ 80016ac:	2300      	movs	r3, #0
+ 80016ae:	71bb      	strb	r3, [r7, #6]
+ 80016b0:	e1d4      	b.n	8001a5c <main+0x464>
 			{
 				if(Buttons[i].Lock == 0)
- 80016aa:	79bb      	ldrb	r3, [r7, #6]
- 80016ac:	4a87      	ldr	r2, [pc, #540]	; (80018cc <main+0x2d4>)
- 80016ae:	212c      	movs	r1, #44	; 0x2c
- 80016b0:	fb01 f303 	mul.w	r3, r1, r3
- 80016b4:	4413      	add	r3, r2
- 80016b6:	3315      	adds	r3, #21
- 80016b8:	781b      	ldrb	r3, [r3, #0]
- 80016ba:	2b00      	cmp	r3, #0
- 80016bc:	f040 81b0 	bne.w	8001a20 <main+0x428>
+ 80016b2:	79bb      	ldrb	r3, [r7, #6]
+ 80016b4:	4a87      	ldr	r2, [pc, #540]	; (80018d4 <main+0x2dc>)
+ 80016b6:	212c      	movs	r1, #44	; 0x2c
+ 80016b8:	fb01 f303 	mul.w	r3, r1, r3
+ 80016bc:	4413      	add	r3, r2
+ 80016be:	3315      	adds	r3, #21
+ 80016c0:	781b      	ldrb	r3, [r3, #0]
+ 80016c2:	2b00      	cmp	r3, #0
+ 80016c4:	f040 81b2 	bne.w	8001a2c <main+0x434>
 				{
 					if(Buttons[i].Mode == HOLD)
- 80016c0:	79bb      	ldrb	r3, [r7, #6]
- 80016c2:	4a82      	ldr	r2, [pc, #520]	; (80018cc <main+0x2d4>)
- 80016c4:	212c      	movs	r1, #44	; 0x2c
- 80016c6:	fb01 f303 	mul.w	r3, r1, r3
- 80016ca:	4413      	add	r3, r2
- 80016cc:	3316      	adds	r3, #22
- 80016ce:	781b      	ldrb	r3, [r3, #0]
- 80016d0:	2b00      	cmp	r3, #0
- 80016d2:	d121      	bne.n	8001718 <main+0x120>
+ 80016c8:	79bb      	ldrb	r3, [r7, #6]
+ 80016ca:	4a82      	ldr	r2, [pc, #520]	; (80018d4 <main+0x2dc>)
+ 80016cc:	212c      	movs	r1, #44	; 0x2c
+ 80016ce:	fb01 f303 	mul.w	r3, r1, r3
+ 80016d2:	4413      	add	r3, r2
+ 80016d4:	3316      	adds	r3, #22
+ 80016d6:	781b      	ldrb	r3, [r3, #0]
+ 80016d8:	2b00      	cmp	r3, #0
+ 80016da:	d121      	bne.n	8001720 <main+0x128>
 					{
 						HAL_GPIO_WritePin(Buttons[i].GPIO_Out, Buttons[i].GPIO_Pin_Out, !Buttons[i].B_State);
- 80016d4:	79bb      	ldrb	r3, [r7, #6]
- 80016d6:	4a7d      	ldr	r2, [pc, #500]	; (80018cc <main+0x2d4>)
- 80016d8:	212c      	movs	r1, #44	; 0x2c
- 80016da:	fb01 f303 	mul.w	r3, r1, r3
- 80016de:	4413      	add	r3, r2
- 80016e0:	330c      	adds	r3, #12
- 80016e2:	6818      	ldr	r0, [r3, #0]
- 80016e4:	79bb      	ldrb	r3, [r7, #6]
- 80016e6:	4a79      	ldr	r2, [pc, #484]	; (80018cc <main+0x2d4>)
- 80016e8:	212c      	movs	r1, #44	; 0x2c
- 80016ea:	fb01 f303 	mul.w	r3, r1, r3
- 80016ee:	4413      	add	r3, r2
- 80016f0:	3310      	adds	r3, #16
- 80016f2:	881c      	ldrh	r4, [r3, #0]
- 80016f4:	79bb      	ldrb	r3, [r7, #6]
- 80016f6:	4a75      	ldr	r2, [pc, #468]	; (80018cc <main+0x2d4>)
- 80016f8:	212c      	movs	r1, #44	; 0x2c
- 80016fa:	fb01 f303 	mul.w	r3, r1, r3
- 80016fe:	4413      	add	r3, r2
- 8001700:	3313      	adds	r3, #19
- 8001702:	781b      	ldrb	r3, [r3, #0]
- 8001704:	2b00      	cmp	r3, #0
- 8001706:	bf0c      	ite	eq
- 8001708:	2301      	moveq	r3, #1
- 800170a:	2300      	movne	r3, #0
- 800170c:	b2db      	uxtb	r3, r3
- 800170e:	461a      	mov	r2, r3
- 8001710:	4621      	mov	r1, r4
- 8001712:	f002 f9df 	bl	8003ad4 <HAL_GPIO_WritePin>
+ 80016dc:	79bb      	ldrb	r3, [r7, #6]
+ 80016de:	4a7d      	ldr	r2, [pc, #500]	; (80018d4 <main+0x2dc>)
+ 80016e0:	212c      	movs	r1, #44	; 0x2c
+ 80016e2:	fb01 f303 	mul.w	r3, r1, r3
+ 80016e6:	4413      	add	r3, r2
+ 80016e8:	330c      	adds	r3, #12
+ 80016ea:	6818      	ldr	r0, [r3, #0]
+ 80016ec:	79bb      	ldrb	r3, [r7, #6]
+ 80016ee:	4a79      	ldr	r2, [pc, #484]	; (80018d4 <main+0x2dc>)
+ 80016f0:	212c      	movs	r1, #44	; 0x2c
+ 80016f2:	fb01 f303 	mul.w	r3, r1, r3
+ 80016f6:	4413      	add	r3, r2
+ 80016f8:	3310      	adds	r3, #16
+ 80016fa:	881c      	ldrh	r4, [r3, #0]
+ 80016fc:	79bb      	ldrb	r3, [r7, #6]
+ 80016fe:	4a75      	ldr	r2, [pc, #468]	; (80018d4 <main+0x2dc>)
+ 8001700:	212c      	movs	r1, #44	; 0x2c
+ 8001702:	fb01 f303 	mul.w	r3, r1, r3
+ 8001706:	4413      	add	r3, r2
+ 8001708:	3313      	adds	r3, #19
+ 800170a:	781b      	ldrb	r3, [r3, #0]
+ 800170c:	2b00      	cmp	r3, #0
+ 800170e:	bf0c      	ite	eq
+ 8001710:	2301      	moveq	r3, #1
+ 8001712:	2300      	movne	r3, #0
+ 8001714:	b2db      	uxtb	r3, r3
+ 8001716:	461a      	mov	r2, r3
+ 8001718:	4621      	mov	r1, r4
+ 800171a:	f002 f9db 	bl	8003ad4 <HAL_GPIO_WritePin>
 						continue;
- 8001716:	e198      	b.n	8001a4a <main+0x452>
+ 800171e:	e19a      	b.n	8001a56 <main+0x45e>
 					}
 					if(Buttons[i].Mode == TOGGLE && Buttons[i].alternate_function == 0)
- 8001718:	79bb      	ldrb	r3, [r7, #6]
- 800171a:	4a6c      	ldr	r2, [pc, #432]	; (80018cc <main+0x2d4>)
- 800171c:	212c      	movs	r1, #44	; 0x2c
- 800171e:	fb01 f303 	mul.w	r3, r1, r3
- 8001722:	4413      	add	r3, r2
- 8001724:	3316      	adds	r3, #22
- 8001726:	781b      	ldrb	r3, [r3, #0]
- 8001728:	2b02      	cmp	r3, #2
- 800172a:	d163      	bne.n	80017f4 <main+0x1fc>
- 800172c:	79bb      	ldrb	r3, [r7, #6]
- 800172e:	4a67      	ldr	r2, [pc, #412]	; (80018cc <main+0x2d4>)
- 8001730:	212c      	movs	r1, #44	; 0x2c
- 8001732:	fb01 f303 	mul.w	r3, r1, r3
- 8001736:	4413      	add	r3, r2
- 8001738:	3324      	adds	r3, #36	; 0x24
- 800173a:	681b      	ldr	r3, [r3, #0]
- 800173c:	2b00      	cmp	r3, #0
- 800173e:	d159      	bne.n	80017f4 <main+0x1fc>
+ 8001720:	79bb      	ldrb	r3, [r7, #6]
+ 8001722:	4a6c      	ldr	r2, [pc, #432]	; (80018d4 <main+0x2dc>)
+ 8001724:	212c      	movs	r1, #44	; 0x2c
+ 8001726:	fb01 f303 	mul.w	r3, r1, r3
+ 800172a:	4413      	add	r3, r2
+ 800172c:	3316      	adds	r3, #22
+ 800172e:	781b      	ldrb	r3, [r3, #0]
+ 8001730:	2b02      	cmp	r3, #2
+ 8001732:	d163      	bne.n	80017fc <main+0x204>
+ 8001734:	79bb      	ldrb	r3, [r7, #6]
+ 8001736:	4a67      	ldr	r2, [pc, #412]	; (80018d4 <main+0x2dc>)
+ 8001738:	212c      	movs	r1, #44	; 0x2c
+ 800173a:	fb01 f303 	mul.w	r3, r1, r3
+ 800173e:	4413      	add	r3, r2
+ 8001740:	3324      	adds	r3, #36	; 0x24
+ 8001742:	681b      	ldr	r3, [r3, #0]
+ 8001744:	2b00      	cmp	r3, #0
+ 8001746:	d159      	bne.n	80017fc <main+0x204>
 					{
 						if(Buttons[i].addiction != 0)
- 8001740:	79bb      	ldrb	r3, [r7, #6]
- 8001742:	4a62      	ldr	r2, [pc, #392]	; (80018cc <main+0x2d4>)
- 8001744:	212c      	movs	r1, #44	; 0x2c
- 8001746:	fb01 f303 	mul.w	r3, r1, r3
- 800174a:	4413      	add	r3, r2
- 800174c:	331c      	adds	r3, #28
- 800174e:	681b      	ldr	r3, [r3, #0]
- 8001750:	2b00      	cmp	r3, #0
- 8001752:	d02d      	beq.n	80017b0 <main+0x1b8>
+ 8001748:	79bb      	ldrb	r3, [r7, #6]
+ 800174a:	4a62      	ldr	r2, [pc, #392]	; (80018d4 <main+0x2dc>)
+ 800174c:	212c      	movs	r1, #44	; 0x2c
+ 800174e:	fb01 f303 	mul.w	r3, r1, r3
+ 8001752:	4413      	add	r3, r2
+ 8001754:	331c      	adds	r3, #28
+ 8001756:	681b      	ldr	r3, [r3, #0]
+ 8001758:	2b00      	cmp	r3, #0
+ 800175a:	d02d      	beq.n	80017b8 <main+0x1c0>
 							HAL_GPIO_WritePin(Buttons[i].GPIO_Out, Buttons[i].GPIO_Pin_Out, !(Buttons[i].B_Out && Buttons[i].addiction->B_Out));
- 8001754:	79bb      	ldrb	r3, [r7, #6]
- 8001756:	4a5d      	ldr	r2, [pc, #372]	; (80018cc <main+0x2d4>)
- 8001758:	212c      	movs	r1, #44	; 0x2c
- 800175a:	fb01 f303 	mul.w	r3, r1, r3
- 800175e:	4413      	add	r3, r2
- 8001760:	330c      	adds	r3, #12
- 8001762:	6818      	ldr	r0, [r3, #0]
- 8001764:	79bb      	ldrb	r3, [r7, #6]
- 8001766:	4a59      	ldr	r2, [pc, #356]	; (80018cc <main+0x2d4>)
- 8001768:	212c      	movs	r1, #44	; 0x2c
- 800176a:	fb01 f303 	mul.w	r3, r1, r3
- 800176e:	4413      	add	r3, r2
- 8001770:	3310      	adds	r3, #16
- 8001772:	881c      	ldrh	r4, [r3, #0]
- 8001774:	79bb      	ldrb	r3, [r7, #6]
- 8001776:	4a55      	ldr	r2, [pc, #340]	; (80018cc <main+0x2d4>)
- 8001778:	212c      	movs	r1, #44	; 0x2c
- 800177a:	fb01 f303 	mul.w	r3, r1, r3
- 800177e:	4413      	add	r3, r2
- 8001780:	3314      	adds	r3, #20
- 8001782:	781b      	ldrb	r3, [r3, #0]
- 8001784:	2b00      	cmp	r3, #0
- 8001786:	d00a      	beq.n	800179e <main+0x1a6>
- 8001788:	79bb      	ldrb	r3, [r7, #6]
- 800178a:	4a50      	ldr	r2, [pc, #320]	; (80018cc <main+0x2d4>)
- 800178c:	212c      	movs	r1, #44	; 0x2c
- 800178e:	fb01 f303 	mul.w	r3, r1, r3
- 8001792:	4413      	add	r3, r2
- 8001794:	331c      	adds	r3, #28
- 8001796:	681b      	ldr	r3, [r3, #0]
- 8001798:	7d1b      	ldrb	r3, [r3, #20]
- 800179a:	2b00      	cmp	r3, #0
- 800179c:	d101      	bne.n	80017a2 <main+0x1aa>
- 800179e:	2301      	movs	r3, #1
- 80017a0:	e000      	b.n	80017a4 <main+0x1ac>
- 80017a2:	2300      	movs	r3, #0
- 80017a4:	b2db      	uxtb	r3, r3
- 80017a6:	461a      	mov	r2, r3
- 80017a8:	4621      	mov	r1, r4
- 80017aa:	f002 f993 	bl	8003ad4 <HAL_GPIO_WritePin>
+ 800175c:	79bb      	ldrb	r3, [r7, #6]
+ 800175e:	4a5d      	ldr	r2, [pc, #372]	; (80018d4 <main+0x2dc>)
+ 8001760:	212c      	movs	r1, #44	; 0x2c
+ 8001762:	fb01 f303 	mul.w	r3, r1, r3
+ 8001766:	4413      	add	r3, r2
+ 8001768:	330c      	adds	r3, #12
+ 800176a:	6818      	ldr	r0, [r3, #0]
+ 800176c:	79bb      	ldrb	r3, [r7, #6]
+ 800176e:	4a59      	ldr	r2, [pc, #356]	; (80018d4 <main+0x2dc>)
+ 8001770:	212c      	movs	r1, #44	; 0x2c
+ 8001772:	fb01 f303 	mul.w	r3, r1, r3
+ 8001776:	4413      	add	r3, r2
+ 8001778:	3310      	adds	r3, #16
+ 800177a:	881c      	ldrh	r4, [r3, #0]
+ 800177c:	79bb      	ldrb	r3, [r7, #6]
+ 800177e:	4a55      	ldr	r2, [pc, #340]	; (80018d4 <main+0x2dc>)
+ 8001780:	212c      	movs	r1, #44	; 0x2c
+ 8001782:	fb01 f303 	mul.w	r3, r1, r3
+ 8001786:	4413      	add	r3, r2
+ 8001788:	3314      	adds	r3, #20
+ 800178a:	781b      	ldrb	r3, [r3, #0]
+ 800178c:	2b00      	cmp	r3, #0
+ 800178e:	d00a      	beq.n	80017a6 <main+0x1ae>
+ 8001790:	79bb      	ldrb	r3, [r7, #6]
+ 8001792:	4a50      	ldr	r2, [pc, #320]	; (80018d4 <main+0x2dc>)
+ 8001794:	212c      	movs	r1, #44	; 0x2c
+ 8001796:	fb01 f303 	mul.w	r3, r1, r3
+ 800179a:	4413      	add	r3, r2
+ 800179c:	331c      	adds	r3, #28
+ 800179e:	681b      	ldr	r3, [r3, #0]
+ 80017a0:	7d1b      	ldrb	r3, [r3, #20]
+ 80017a2:	2b00      	cmp	r3, #0
+ 80017a4:	d101      	bne.n	80017aa <main+0x1b2>
+ 80017a6:	2301      	movs	r3, #1
+ 80017a8:	e000      	b.n	80017ac <main+0x1b4>
+ 80017aa:	2300      	movs	r3, #0
+ 80017ac:	b2db      	uxtb	r3, r3
+ 80017ae:	461a      	mov	r2, r3
+ 80017b0:	4621      	mov	r1, r4
+ 80017b2:	f002 f98f 	bl	8003ad4 <HAL_GPIO_WritePin>
 						else
 							HAL_GPIO_WritePin(Buttons[i].GPIO_Out, Buttons[i].GPIO_Pin_Out, !Buttons[i].B_Out);
 						continue;
- 80017ae:	e14c      	b.n	8001a4a <main+0x452>
+ 80017b6:	e14e      	b.n	8001a56 <main+0x45e>
 							HAL_GPIO_WritePin(Buttons[i].GPIO_Out, Buttons[i].GPIO_Pin_Out, !Buttons[i].B_Out);
- 80017b0:	79bb      	ldrb	r3, [r7, #6]
- 80017b2:	4a46      	ldr	r2, [pc, #280]	; (80018cc <main+0x2d4>)
- 80017b4:	212c      	movs	r1, #44	; 0x2c
- 80017b6:	fb01 f303 	mul.w	r3, r1, r3
- 80017ba:	4413      	add	r3, r2
- 80017bc:	330c      	adds	r3, #12
- 80017be:	6818      	ldr	r0, [r3, #0]
- 80017c0:	79bb      	ldrb	r3, [r7, #6]
- 80017c2:	4a42      	ldr	r2, [pc, #264]	; (80018cc <main+0x2d4>)
- 80017c4:	212c      	movs	r1, #44	; 0x2c
- 80017c6:	fb01 f303 	mul.w	r3, r1, r3
- 80017ca:	4413      	add	r3, r2
- 80017cc:	3310      	adds	r3, #16
- 80017ce:	881c      	ldrh	r4, [r3, #0]
- 80017d0:	79bb      	ldrb	r3, [r7, #6]
- 80017d2:	4a3e      	ldr	r2, [pc, #248]	; (80018cc <main+0x2d4>)
- 80017d4:	212c      	movs	r1, #44	; 0x2c
- 80017d6:	fb01 f303 	mul.w	r3, r1, r3
- 80017da:	4413      	add	r3, r2
- 80017dc:	3314      	adds	r3, #20
- 80017de:	781b      	ldrb	r3, [r3, #0]
- 80017e0:	2b00      	cmp	r3, #0
- 80017e2:	bf0c      	ite	eq
- 80017e4:	2301      	moveq	r3, #1
- 80017e6:	2300      	movne	r3, #0
- 80017e8:	b2db      	uxtb	r3, r3
- 80017ea:	461a      	mov	r2, r3
- 80017ec:	4621      	mov	r1, r4
- 80017ee:	f002 f971 	bl	8003ad4 <HAL_GPIO_WritePin>
+ 80017b8:	79bb      	ldrb	r3, [r7, #6]
+ 80017ba:	4a46      	ldr	r2, [pc, #280]	; (80018d4 <main+0x2dc>)
+ 80017bc:	212c      	movs	r1, #44	; 0x2c
+ 80017be:	fb01 f303 	mul.w	r3, r1, r3
+ 80017c2:	4413      	add	r3, r2
+ 80017c4:	330c      	adds	r3, #12
+ 80017c6:	6818      	ldr	r0, [r3, #0]
+ 80017c8:	79bb      	ldrb	r3, [r7, #6]
+ 80017ca:	4a42      	ldr	r2, [pc, #264]	; (80018d4 <main+0x2dc>)
+ 80017cc:	212c      	movs	r1, #44	; 0x2c
+ 80017ce:	fb01 f303 	mul.w	r3, r1, r3
+ 80017d2:	4413      	add	r3, r2
+ 80017d4:	3310      	adds	r3, #16
+ 80017d6:	881c      	ldrh	r4, [r3, #0]
+ 80017d8:	79bb      	ldrb	r3, [r7, #6]
+ 80017da:	4a3e      	ldr	r2, [pc, #248]	; (80018d4 <main+0x2dc>)
+ 80017dc:	212c      	movs	r1, #44	; 0x2c
+ 80017de:	fb01 f303 	mul.w	r3, r1, r3
+ 80017e2:	4413      	add	r3, r2
+ 80017e4:	3314      	adds	r3, #20
+ 80017e6:	781b      	ldrb	r3, [r3, #0]
+ 80017e8:	2b00      	cmp	r3, #0
+ 80017ea:	bf0c      	ite	eq
+ 80017ec:	2301      	moveq	r3, #1
+ 80017ee:	2300      	movne	r3, #0
+ 80017f0:	b2db      	uxtb	r3, r3
+ 80017f2:	461a      	mov	r2, r3
+ 80017f4:	4621      	mov	r1, r4
+ 80017f6:	f002 f96d 	bl	8003ad4 <HAL_GPIO_WritePin>
 						continue;
- 80017f2:	e12a      	b.n	8001a4a <main+0x452>
+ 80017fa:	e12c      	b.n	8001a56 <main+0x45e>
 					}
 					if (Buttons[i].alternate_function && Buttons[i].Mode == PRESS && Buttons[i].B_Out)
- 80017f4:	79bb      	ldrb	r3, [r7, #6]
- 80017f6:	4a35      	ldr	r2, [pc, #212]	; (80018cc <main+0x2d4>)
- 80017f8:	212c      	movs	r1, #44	; 0x2c
- 80017fa:	fb01 f303 	mul.w	r3, r1, r3
- 80017fe:	4413      	add	r3, r2
- 8001800:	3324      	adds	r3, #36	; 0x24
- 8001802:	681b      	ldr	r3, [r3, #0]
- 8001804:	2b00      	cmp	r3, #0
- 8001806:	d02d      	beq.n	8001864 <main+0x26c>
- 8001808:	79bb      	ldrb	r3, [r7, #6]
- 800180a:	4a30      	ldr	r2, [pc, #192]	; (80018cc <main+0x2d4>)
- 800180c:	212c      	movs	r1, #44	; 0x2c
- 800180e:	fb01 f303 	mul.w	r3, r1, r3
- 8001812:	4413      	add	r3, r2
- 8001814:	3316      	adds	r3, #22
- 8001816:	781b      	ldrb	r3, [r3, #0]
- 8001818:	2b01      	cmp	r3, #1
- 800181a:	d123      	bne.n	8001864 <main+0x26c>
- 800181c:	79bb      	ldrb	r3, [r7, #6]
- 800181e:	4a2b      	ldr	r2, [pc, #172]	; (80018cc <main+0x2d4>)
- 8001820:	212c      	movs	r1, #44	; 0x2c
- 8001822:	fb01 f303 	mul.w	r3, r1, r3
- 8001826:	4413      	add	r3, r2
- 8001828:	3314      	adds	r3, #20
- 800182a:	781b      	ldrb	r3, [r3, #0]
- 800182c:	2b00      	cmp	r3, #0
- 800182e:	d019      	beq.n	8001864 <main+0x26c>
+ 80017fc:	79bb      	ldrb	r3, [r7, #6]
+ 80017fe:	4a35      	ldr	r2, [pc, #212]	; (80018d4 <main+0x2dc>)
+ 8001800:	212c      	movs	r1, #44	; 0x2c
+ 8001802:	fb01 f303 	mul.w	r3, r1, r3
+ 8001806:	4413      	add	r3, r2
+ 8001808:	3324      	adds	r3, #36	; 0x24
+ 800180a:	681b      	ldr	r3, [r3, #0]
+ 800180c:	2b00      	cmp	r3, #0
+ 800180e:	d02d      	beq.n	800186c <main+0x274>
+ 8001810:	79bb      	ldrb	r3, [r7, #6]
+ 8001812:	4a30      	ldr	r2, [pc, #192]	; (80018d4 <main+0x2dc>)
+ 8001814:	212c      	movs	r1, #44	; 0x2c
+ 8001816:	fb01 f303 	mul.w	r3, r1, r3
+ 800181a:	4413      	add	r3, r2
+ 800181c:	3316      	adds	r3, #22
+ 800181e:	781b      	ldrb	r3, [r3, #0]
+ 8001820:	2b01      	cmp	r3, #1
+ 8001822:	d123      	bne.n	800186c <main+0x274>
+ 8001824:	79bb      	ldrb	r3, [r7, #6]
+ 8001826:	4a2b      	ldr	r2, [pc, #172]	; (80018d4 <main+0x2dc>)
+ 8001828:	212c      	movs	r1, #44	; 0x2c
+ 800182a:	fb01 f303 	mul.w	r3, r1, r3
+ 800182e:	4413      	add	r3, r2
+ 8001830:	3314      	adds	r3, #20
+ 8001832:	781b      	ldrb	r3, [r3, #0]
+ 8001834:	2b00      	cmp	r3, #0
+ 8001836:	d019      	beq.n	800186c <main+0x274>
 					{
 						Buttons[i].B_Out = 0;
- 8001830:	79bb      	ldrb	r3, [r7, #6]
- 8001832:	4a26      	ldr	r2, [pc, #152]	; (80018cc <main+0x2d4>)
- 8001834:	212c      	movs	r1, #44	; 0x2c
- 8001836:	fb01 f303 	mul.w	r3, r1, r3
- 800183a:	4413      	add	r3, r2
- 800183c:	3314      	adds	r3, #20
- 800183e:	2200      	movs	r2, #0
- 8001840:	701a      	strb	r2, [r3, #0]
+ 8001838:	79bb      	ldrb	r3, [r7, #6]
+ 800183a:	4a26      	ldr	r2, [pc, #152]	; (80018d4 <main+0x2dc>)
+ 800183c:	212c      	movs	r1, #44	; 0x2c
+ 800183e:	fb01 f303 	mul.w	r3, r1, r3
+ 8001842:	4413      	add	r3, r2
+ 8001844:	3314      	adds	r3, #20
+ 8001846:	2200      	movs	r2, #0
+ 8001848:	701a      	strb	r2, [r3, #0]
 						Buttons[i].alternate_function(&Buttons[i]);
- 8001842:	79bb      	ldrb	r3, [r7, #6]
- 8001844:	4a21      	ldr	r2, [pc, #132]	; (80018cc <main+0x2d4>)
- 8001846:	212c      	movs	r1, #44	; 0x2c
- 8001848:	fb01 f303 	mul.w	r3, r1, r3
- 800184c:	4413      	add	r3, r2
- 800184e:	3324      	adds	r3, #36	; 0x24
- 8001850:	681b      	ldr	r3, [r3, #0]
- 8001852:	79ba      	ldrb	r2, [r7, #6]
- 8001854:	212c      	movs	r1, #44	; 0x2c
- 8001856:	fb01 f202 	mul.w	r2, r1, r2
- 800185a:	491c      	ldr	r1, [pc, #112]	; (80018cc <main+0x2d4>)
- 800185c:	440a      	add	r2, r1
- 800185e:	4610      	mov	r0, r2
- 8001860:	4798      	blx	r3
+ 800184a:	79bb      	ldrb	r3, [r7, #6]
+ 800184c:	4a21      	ldr	r2, [pc, #132]	; (80018d4 <main+0x2dc>)
+ 800184e:	212c      	movs	r1, #44	; 0x2c
+ 8001850:	fb01 f303 	mul.w	r3, r1, r3
+ 8001854:	4413      	add	r3, r2
+ 8001856:	3324      	adds	r3, #36	; 0x24
+ 8001858:	681b      	ldr	r3, [r3, #0]
+ 800185a:	79ba      	ldrb	r2, [r7, #6]
+ 800185c:	212c      	movs	r1, #44	; 0x2c
+ 800185e:	fb01 f202 	mul.w	r2, r1, r2
+ 8001862:	491c      	ldr	r1, [pc, #112]	; (80018d4 <main+0x2dc>)
+ 8001864:	440a      	add	r2, r1
+ 8001866:	4610      	mov	r0, r2
+ 8001868:	4798      	blx	r3
 						continue;
- 8001862:	e0f2      	b.n	8001a4a <main+0x452>
+ 800186a:	e0f4      	b.n	8001a56 <main+0x45e>
 					}
 					if(Buttons[i].Mode == TIMER && Buttons[i].B_Out)
- 8001864:	79bb      	ldrb	r3, [r7, #6]
- 8001866:	4a19      	ldr	r2, [pc, #100]	; (80018cc <main+0x2d4>)
- 8001868:	212c      	movs	r1, #44	; 0x2c
- 800186a:	fb01 f303 	mul.w	r3, r1, r3
- 800186e:	4413      	add	r3, r2
- 8001870:	3316      	adds	r3, #22
- 8001872:	781b      	ldrb	r3, [r3, #0]
- 8001874:	2b03      	cmp	r3, #3
- 8001876:	d12d      	bne.n	80018d4 <main+0x2dc>
- 8001878:	79bb      	ldrb	r3, [r7, #6]
- 800187a:	4a14      	ldr	r2, [pc, #80]	; (80018cc <main+0x2d4>)
- 800187c:	212c      	movs	r1, #44	; 0x2c
- 800187e:	fb01 f303 	mul.w	r3, r1, r3
- 8001882:	4413      	add	r3, r2
- 8001884:	3314      	adds	r3, #20
- 8001886:	781b      	ldrb	r3, [r3, #0]
- 8001888:	2b00      	cmp	r3, #0
- 800188a:	d023      	beq.n	80018d4 <main+0x2dc>
+ 800186c:	79bb      	ldrb	r3, [r7, #6]
+ 800186e:	4a19      	ldr	r2, [pc, #100]	; (80018d4 <main+0x2dc>)
+ 8001870:	212c      	movs	r1, #44	; 0x2c
+ 8001872:	fb01 f303 	mul.w	r3, r1, r3
+ 8001876:	4413      	add	r3, r2
+ 8001878:	3316      	adds	r3, #22
+ 800187a:	781b      	ldrb	r3, [r3, #0]
+ 800187c:	2b03      	cmp	r3, #3
+ 800187e:	d12f      	bne.n	80018e0 <main+0x2e8>
+ 8001880:	79bb      	ldrb	r3, [r7, #6]
+ 8001882:	4a14      	ldr	r2, [pc, #80]	; (80018d4 <main+0x2dc>)
+ 8001884:	212c      	movs	r1, #44	; 0x2c
+ 8001886:	fb01 f303 	mul.w	r3, r1, r3
+ 800188a:	4413      	add	r3, r2
+ 800188c:	3314      	adds	r3, #20
+ 800188e:	781b      	ldrb	r3, [r3, #0]
+ 8001890:	2b00      	cmp	r3, #0
+ 8001892:	d025      	beq.n	80018e0 <main+0x2e8>
 					{
 						Buttons[i].B_Out = 0;
- 800188c:	79bb      	ldrb	r3, [r7, #6]
- 800188e:	4a0f      	ldr	r2, [pc, #60]	; (80018cc <main+0x2d4>)
- 8001890:	212c      	movs	r1, #44	; 0x2c
- 8001892:	fb01 f303 	mul.w	r3, r1, r3
- 8001896:	4413      	add	r3, r2
- 8001898:	3314      	adds	r3, #20
- 800189a:	2200      	movs	r2, #0
- 800189c:	701a      	strb	r2, [r3, #0]
+ 8001894:	79bb      	ldrb	r3, [r7, #6]
+ 8001896:	4a0f      	ldr	r2, [pc, #60]	; (80018d4 <main+0x2dc>)
+ 8001898:	212c      	movs	r1, #44	; 0x2c
+ 800189a:	fb01 f303 	mul.w	r3, r1, r3
+ 800189e:	4413      	add	r3, r2
+ 80018a0:	3314      	adds	r3, #20
+ 80018a2:	2200      	movs	r2, #0
+ 80018a4:	701a      	strb	r2, [r3, #0]
 						TimerMotor(&Buttons[i]);
- 800189e:	79bb      	ldrb	r3, [r7, #6]
- 80018a0:	222c      	movs	r2, #44	; 0x2c
- 80018a2:	fb02 f303 	mul.w	r3, r2, r3
- 80018a6:	4a09      	ldr	r2, [pc, #36]	; (80018cc <main+0x2d4>)
- 80018a8:	4413      	add	r3, r2
- 80018aa:	4618      	mov	r0, r3
- 80018ac:	f000 ffc6 	bl	800283c <TimerMotor>
+ 80018a6:	79bb      	ldrb	r3, [r7, #6]
+ 80018a8:	222c      	movs	r2, #44	; 0x2c
+ 80018aa:	fb02 f303 	mul.w	r3, r2, r3
+ 80018ae:	4a09      	ldr	r2, [pc, #36]	; (80018d4 <main+0x2dc>)
+ 80018b0:	4413      	add	r3, r2
+ 80018b2:	4618      	mov	r0, r3
+ 80018b4:	f000 ffc2 	bl	800283c <TimerMotor>
 						continue;
- 80018b0:	e0cb      	b.n	8001a4a <main+0x452>
- 80018b2:	bf00      	nop
- 80018b4:	40020c00 	.word	0x40020c00
- 80018b8:	20000800 	.word	0x20000800
- 80018bc:	08007a48 	.word	0x08007a48
- 80018c0:	20000380 	.word	0x20000380
- 80018c4:	20000c0c 	.word	0x20000c0c
- 80018c8:	20000b6c 	.word	0x20000b6c
- 80018cc:	200008ac 	.word	0x200008ac
- 80018d0:	20000804 	.word	0x20000804
+ 80018b8:	e0cd      	b.n	8001a56 <main+0x45e>
+ 80018ba:	bf00      	nop
+ 80018bc:	40020c00 	.word	0x40020c00
+ 80018c0:	20000800 	.word	0x20000800
+ 80018c4:	08007a48 	.word	0x08007a48
+ 80018c8:	20000380 	.word	0x20000380
+ 80018cc:	20000c0c 	.word	0x20000c0c
+ 80018d0:	20000b6c 	.word	0x20000b6c
+ 80018d4:	200008ac 	.word	0x200008ac
+ 80018d8:	20000804 	.word	0x20000804
+ 80018dc:	2000086c 	.word	0x2000086c
 					}
 					if(Buttons[i].Mode == __DELAY && Buttons[i].B_Out)
- 80018d4:	79bb      	ldrb	r3, [r7, #6]
- 80018d6:	4aa9      	ldr	r2, [pc, #676]	; (8001b7c <main+0x584>)
- 80018d8:	212c      	movs	r1, #44	; 0x2c
- 80018da:	fb01 f303 	mul.w	r3, r1, r3
- 80018de:	4413      	add	r3, r2
- 80018e0:	3316      	adds	r3, #22
- 80018e2:	781b      	ldrb	r3, [r3, #0]
- 80018e4:	2b04      	cmp	r3, #4
- 80018e6:	d152      	bne.n	800198e <main+0x396>
- 80018e8:	79bb      	ldrb	r3, [r7, #6]
- 80018ea:	4aa4      	ldr	r2, [pc, #656]	; (8001b7c <main+0x584>)
- 80018ec:	212c      	movs	r1, #44	; 0x2c
- 80018ee:	fb01 f303 	mul.w	r3, r1, r3
- 80018f2:	4413      	add	r3, r2
- 80018f4:	3314      	adds	r3, #20
- 80018f6:	781b      	ldrb	r3, [r3, #0]
- 80018f8:	2b00      	cmp	r3, #0
- 80018fa:	d048      	beq.n	800198e <main+0x396>
+ 80018e0:	79bb      	ldrb	r3, [r7, #6]
+ 80018e2:	4aae      	ldr	r2, [pc, #696]	; (8001b9c <main+0x5a4>)
+ 80018e4:	212c      	movs	r1, #44	; 0x2c
+ 80018e6:	fb01 f303 	mul.w	r3, r1, r3
+ 80018ea:	4413      	add	r3, r2
+ 80018ec:	3316      	adds	r3, #22
+ 80018ee:	781b      	ldrb	r3, [r3, #0]
+ 80018f0:	2b04      	cmp	r3, #4
+ 80018f2:	d152      	bne.n	800199a <main+0x3a2>
+ 80018f4:	79bb      	ldrb	r3, [r7, #6]
+ 80018f6:	4aa9      	ldr	r2, [pc, #676]	; (8001b9c <main+0x5a4>)
+ 80018f8:	212c      	movs	r1, #44	; 0x2c
+ 80018fa:	fb01 f303 	mul.w	r3, r1, r3
+ 80018fe:	4413      	add	r3, r2
+ 8001900:	3314      	adds	r3, #20
+ 8001902:	781b      	ldrb	r3, [r3, #0]
+ 8001904:	2b00      	cmp	r3, #0
+ 8001906:	d048      	beq.n	800199a <main+0x3a2>
 					{
 						if(Buttons[i].addiction->B_Out == 0) continue;
- 80018fc:	79bb      	ldrb	r3, [r7, #6]
- 80018fe:	4a9f      	ldr	r2, [pc, #636]	; (8001b7c <main+0x584>)
- 8001900:	212c      	movs	r1, #44	; 0x2c
- 8001902:	fb01 f303 	mul.w	r3, r1, r3
- 8001906:	4413      	add	r3, r2
- 8001908:	331c      	adds	r3, #28
- 800190a:	681b      	ldr	r3, [r3, #0]
- 800190c:	7d1b      	ldrb	r3, [r3, #20]
- 800190e:	2b00      	cmp	r3, #0
- 8001910:	f000 809a 	beq.w	8001a48 <main+0x450>
+ 8001908:	79bb      	ldrb	r3, [r7, #6]
+ 800190a:	4aa4      	ldr	r2, [pc, #656]	; (8001b9c <main+0x5a4>)
+ 800190c:	212c      	movs	r1, #44	; 0x2c
+ 800190e:	fb01 f303 	mul.w	r3, r1, r3
+ 8001912:	4413      	add	r3, r2
+ 8001914:	331c      	adds	r3, #28
+ 8001916:	681b      	ldr	r3, [r3, #0]
+ 8001918:	7d1b      	ldrb	r3, [r3, #20]
+ 800191a:	2b00      	cmp	r3, #0
+ 800191c:	f000 809a 	beq.w	8001a54 <main+0x45c>
 						Buttons[i].B_Out = 0;
- 8001914:	79bb      	ldrb	r3, [r7, #6]
- 8001916:	4a99      	ldr	r2, [pc, #612]	; (8001b7c <main+0x584>)
- 8001918:	212c      	movs	r1, #44	; 0x2c
- 800191a:	fb01 f303 	mul.w	r3, r1, r3
- 800191e:	4413      	add	r3, r2
- 8001920:	3314      	adds	r3, #20
- 8001922:	2200      	movs	r2, #0
- 8001924:	701a      	strb	r2, [r3, #0]
+ 8001920:	79bb      	ldrb	r3, [r7, #6]
+ 8001922:	4a9e      	ldr	r2, [pc, #632]	; (8001b9c <main+0x5a4>)
+ 8001924:	212c      	movs	r1, #44	; 0x2c
+ 8001926:	fb01 f303 	mul.w	r3, r1, r3
+ 800192a:	4413      	add	r3, r2
+ 800192c:	3314      	adds	r3, #20
+ 800192e:	2200      	movs	r2, #0
+ 8001930:	701a      	strb	r2, [r3, #0]
 						HAL_GPIO_WritePin(Buttons[i].GPIO_Out, Buttons[i].GPIO_Pin_Out, 0);
- 8001926:	79bb      	ldrb	r3, [r7, #6]
- 8001928:	4a94      	ldr	r2, [pc, #592]	; (8001b7c <main+0x584>)
- 800192a:	212c      	movs	r1, #44	; 0x2c
- 800192c:	fb01 f303 	mul.w	r3, r1, r3
- 8001930:	4413      	add	r3, r2
- 8001932:	330c      	adds	r3, #12
- 8001934:	6818      	ldr	r0, [r3, #0]
- 8001936:	79bb      	ldrb	r3, [r7, #6]
- 8001938:	4a90      	ldr	r2, [pc, #576]	; (8001b7c <main+0x584>)
- 800193a:	212c      	movs	r1, #44	; 0x2c
- 800193c:	fb01 f303 	mul.w	r3, r1, r3
- 8001940:	4413      	add	r3, r2
- 8001942:	3310      	adds	r3, #16
- 8001944:	881b      	ldrh	r3, [r3, #0]
- 8001946:	2200      	movs	r2, #0
- 8001948:	4619      	mov	r1, r3
- 800194a:	f002 f8c3 	bl	8003ad4 <HAL_GPIO_WritePin>
+ 8001932:	79bb      	ldrb	r3, [r7, #6]
+ 8001934:	4a99      	ldr	r2, [pc, #612]	; (8001b9c <main+0x5a4>)
+ 8001936:	212c      	movs	r1, #44	; 0x2c
+ 8001938:	fb01 f303 	mul.w	r3, r1, r3
+ 800193c:	4413      	add	r3, r2
+ 800193e:	330c      	adds	r3, #12
+ 8001940:	6818      	ldr	r0, [r3, #0]
+ 8001942:	79bb      	ldrb	r3, [r7, #6]
+ 8001944:	4a95      	ldr	r2, [pc, #596]	; (8001b9c <main+0x5a4>)
+ 8001946:	212c      	movs	r1, #44	; 0x2c
+ 8001948:	fb01 f303 	mul.w	r3, r1, r3
+ 800194c:	4413      	add	r3, r2
+ 800194e:	3310      	adds	r3, #16
+ 8001950:	881b      	ldrh	r3, [r3, #0]
+ 8001952:	2200      	movs	r2, #0
+ 8001954:	4619      	mov	r1, r3
+ 8001956:	f002 f8bd 	bl	8003ad4 <HAL_GPIO_WritePin>
 						HAL_Delay(Buttons[i].Delay);
- 800194e:	79bb      	ldrb	r3, [r7, #6]
- 8001950:	4a8a      	ldr	r2, [pc, #552]	; (8001b7c <main+0x584>)
- 8001952:	212c      	movs	r1, #44	; 0x2c
- 8001954:	fb01 f303 	mul.w	r3, r1, r3
- 8001958:	4413      	add	r3, r2
- 800195a:	3318      	adds	r3, #24
- 800195c:	881b      	ldrh	r3, [r3, #0]
- 800195e:	4618      	mov	r0, r3
- 8001960:	f001 fab0 	bl	8002ec4 <HAL_Delay>
+ 800195a:	79bb      	ldrb	r3, [r7, #6]
+ 800195c:	4a8f      	ldr	r2, [pc, #572]	; (8001b9c <main+0x5a4>)
+ 800195e:	212c      	movs	r1, #44	; 0x2c
+ 8001960:	fb01 f303 	mul.w	r3, r1, r3
+ 8001964:	4413      	add	r3, r2
+ 8001966:	3318      	adds	r3, #24
+ 8001968:	881b      	ldrh	r3, [r3, #0]
+ 800196a:	4618      	mov	r0, r3
+ 800196c:	f001 faaa 	bl	8002ec4 <HAL_Delay>
 						HAL_GPIO_WritePin(Buttons[i].GPIO_Out, Buttons[i].GPIO_Pin_Out, 1);
- 8001964:	79bb      	ldrb	r3, [r7, #6]
- 8001966:	4a85      	ldr	r2, [pc, #532]	; (8001b7c <main+0x584>)
- 8001968:	212c      	movs	r1, #44	; 0x2c
- 800196a:	fb01 f303 	mul.w	r3, r1, r3
- 800196e:	4413      	add	r3, r2
- 8001970:	330c      	adds	r3, #12
- 8001972:	6818      	ldr	r0, [r3, #0]
- 8001974:	79bb      	ldrb	r3, [r7, #6]
- 8001976:	4a81      	ldr	r2, [pc, #516]	; (8001b7c <main+0x584>)
- 8001978:	212c      	movs	r1, #44	; 0x2c
- 800197a:	fb01 f303 	mul.w	r3, r1, r3
- 800197e:	4413      	add	r3, r2
- 8001980:	3310      	adds	r3, #16
- 8001982:	881b      	ldrh	r3, [r3, #0]
- 8001984:	2201      	movs	r2, #1
- 8001986:	4619      	mov	r1, r3
- 8001988:	f002 f8a4 	bl	8003ad4 <HAL_GPIO_WritePin>
+ 8001970:	79bb      	ldrb	r3, [r7, #6]
+ 8001972:	4a8a      	ldr	r2, [pc, #552]	; (8001b9c <main+0x5a4>)
+ 8001974:	212c      	movs	r1, #44	; 0x2c
+ 8001976:	fb01 f303 	mul.w	r3, r1, r3
+ 800197a:	4413      	add	r3, r2
+ 800197c:	330c      	adds	r3, #12
+ 800197e:	6818      	ldr	r0, [r3, #0]
+ 8001980:	79bb      	ldrb	r3, [r7, #6]
+ 8001982:	4a86      	ldr	r2, [pc, #536]	; (8001b9c <main+0x5a4>)
+ 8001984:	212c      	movs	r1, #44	; 0x2c
+ 8001986:	fb01 f303 	mul.w	r3, r1, r3
+ 800198a:	4413      	add	r3, r2
+ 800198c:	3310      	adds	r3, #16
+ 800198e:	881b      	ldrh	r3, [r3, #0]
+ 8001990:	2201      	movs	r2, #1
+ 8001992:	4619      	mov	r1, r3
+ 8001994:	f002 f89e 	bl	8003ad4 <HAL_GPIO_WritePin>
 						continue;
- 800198c:	e05d      	b.n	8001a4a <main+0x452>
+ 8001998:	e05d      	b.n	8001a56 <main+0x45e>
 					}
 					if(Buttons[i].Mode == HOLD_MOTOR && Buttons[i].B_Out)
- 800198e:	79bb      	ldrb	r3, [r7, #6]
- 8001990:	4a7a      	ldr	r2, [pc, #488]	; (8001b7c <main+0x584>)
- 8001992:	212c      	movs	r1, #44	; 0x2c
- 8001994:	fb01 f303 	mul.w	r3, r1, r3
- 8001998:	4413      	add	r3, r2
- 800199a:	3316      	adds	r3, #22
- 800199c:	781b      	ldrb	r3, [r3, #0]
- 800199e:	2b05      	cmp	r3, #5
- 80019a0:	d11d      	bne.n	80019de <main+0x3e6>
- 80019a2:	79bb      	ldrb	r3, [r7, #6]
- 80019a4:	4a75      	ldr	r2, [pc, #468]	; (8001b7c <main+0x584>)
- 80019a6:	212c      	movs	r1, #44	; 0x2c
- 80019a8:	fb01 f303 	mul.w	r3, r1, r3
- 80019ac:	4413      	add	r3, r2
- 80019ae:	3314      	adds	r3, #20
- 80019b0:	781b      	ldrb	r3, [r3, #0]
- 80019b2:	2b00      	cmp	r3, #0
- 80019b4:	d013      	beq.n	80019de <main+0x3e6>
+ 800199a:	79bb      	ldrb	r3, [r7, #6]
+ 800199c:	4a7f      	ldr	r2, [pc, #508]	; (8001b9c <main+0x5a4>)
+ 800199e:	212c      	movs	r1, #44	; 0x2c
+ 80019a0:	fb01 f303 	mul.w	r3, r1, r3
+ 80019a4:	4413      	add	r3, r2
+ 80019a6:	3316      	adds	r3, #22
+ 80019a8:	781b      	ldrb	r3, [r3, #0]
+ 80019aa:	2b05      	cmp	r3, #5
+ 80019ac:	d11d      	bne.n	80019ea <main+0x3f2>
+ 80019ae:	79bb      	ldrb	r3, [r7, #6]
+ 80019b0:	4a7a      	ldr	r2, [pc, #488]	; (8001b9c <main+0x5a4>)
+ 80019b2:	212c      	movs	r1, #44	; 0x2c
+ 80019b4:	fb01 f303 	mul.w	r3, r1, r3
+ 80019b8:	4413      	add	r3, r2
+ 80019ba:	3314      	adds	r3, #20
+ 80019bc:	781b      	ldrb	r3, [r3, #0]
+ 80019be:	2b00      	cmp	r3, #0
+ 80019c0:	d013      	beq.n	80019ea <main+0x3f2>
 					{
 						Buttons[i].B_Out = 0;
- 80019b6:	79bb      	ldrb	r3, [r7, #6]
- 80019b8:	4a70      	ldr	r2, [pc, #448]	; (8001b7c <main+0x584>)
- 80019ba:	212c      	movs	r1, #44	; 0x2c
- 80019bc:	fb01 f303 	mul.w	r3, r1, r3
- 80019c0:	4413      	add	r3, r2
- 80019c2:	3314      	adds	r3, #20
- 80019c4:	2200      	movs	r2, #0
- 80019c6:	701a      	strb	r2, [r3, #0]
+ 80019c2:	79bb      	ldrb	r3, [r7, #6]
+ 80019c4:	4a75      	ldr	r2, [pc, #468]	; (8001b9c <main+0x5a4>)
+ 80019c6:	212c      	movs	r1, #44	; 0x2c
+ 80019c8:	fb01 f303 	mul.w	r3, r1, r3
+ 80019cc:	4413      	add	r3, r2
+ 80019ce:	3314      	adds	r3, #20
+ 80019d0:	2200      	movs	r2, #0
+ 80019d2:	701a      	strb	r2, [r3, #0]
 						HoldMotor(&Buttons[i], 1);
- 80019c8:	79bb      	ldrb	r3, [r7, #6]
- 80019ca:	222c      	movs	r2, #44	; 0x2c
- 80019cc:	fb02 f303 	mul.w	r3, r2, r3
- 80019d0:	4a6a      	ldr	r2, [pc, #424]	; (8001b7c <main+0x584>)
- 80019d2:	4413      	add	r3, r2
- 80019d4:	2101      	movs	r1, #1
- 80019d6:	4618      	mov	r0, r3
- 80019d8:	f000 fe92 	bl	8002700 <HoldMotor>
+ 80019d4:	79bb      	ldrb	r3, [r7, #6]
+ 80019d6:	222c      	movs	r2, #44	; 0x2c
+ 80019d8:	fb02 f303 	mul.w	r3, r2, r3
+ 80019dc:	4a6f      	ldr	r2, [pc, #444]	; (8001b9c <main+0x5a4>)
+ 80019de:	4413      	add	r3, r2
+ 80019e0:	2101      	movs	r1, #1
+ 80019e2:	4618      	mov	r0, r3
+ 80019e4:	f000 fe8c 	bl	8002700 <HoldMotor>
 						continue;
- 80019dc:	e035      	b.n	8001a4a <main+0x452>
+ 80019e8:	e035      	b.n	8001a56 <main+0x45e>
 					}
 					if(Buttons[i].Mode == HOLD_UNTIL && Buttons[i].B_Out)
- 80019de:	79bb      	ldrb	r3, [r7, #6]
- 80019e0:	4a66      	ldr	r2, [pc, #408]	; (8001b7c <main+0x584>)
- 80019e2:	212c      	movs	r1, #44	; 0x2c
- 80019e4:	fb01 f303 	mul.w	r3, r1, r3
- 80019e8:	4413      	add	r3, r2
- 80019ea:	3316      	adds	r3, #22
- 80019ec:	781b      	ldrb	r3, [r3, #0]
- 80019ee:	2b06      	cmp	r3, #6
- 80019f0:	d116      	bne.n	8001a20 <main+0x428>
- 80019f2:	79bb      	ldrb	r3, [r7, #6]
- 80019f4:	4a61      	ldr	r2, [pc, #388]	; (8001b7c <main+0x584>)
- 80019f6:	212c      	movs	r1, #44	; 0x2c
- 80019f8:	fb01 f303 	mul.w	r3, r1, r3
- 80019fc:	4413      	add	r3, r2
- 80019fe:	3314      	adds	r3, #20
- 8001a00:	781b      	ldrb	r3, [r3, #0]
- 8001a02:	2b00      	cmp	r3, #0
- 8001a04:	d00c      	beq.n	8001a20 <main+0x428>
+ 80019ea:	79bb      	ldrb	r3, [r7, #6]
+ 80019ec:	4a6b      	ldr	r2, [pc, #428]	; (8001b9c <main+0x5a4>)
+ 80019ee:	212c      	movs	r1, #44	; 0x2c
+ 80019f0:	fb01 f303 	mul.w	r3, r1, r3
+ 80019f4:	4413      	add	r3, r2
+ 80019f6:	3316      	adds	r3, #22
+ 80019f8:	781b      	ldrb	r3, [r3, #0]
+ 80019fa:	2b06      	cmp	r3, #6
+ 80019fc:	d116      	bne.n	8001a2c <main+0x434>
+ 80019fe:	79bb      	ldrb	r3, [r7, #6]
+ 8001a00:	4a66      	ldr	r2, [pc, #408]	; (8001b9c <main+0x5a4>)
+ 8001a02:	212c      	movs	r1, #44	; 0x2c
+ 8001a04:	fb01 f303 	mul.w	r3, r1, r3
+ 8001a08:	4413      	add	r3, r2
+ 8001a0a:	3314      	adds	r3, #20
+ 8001a0c:	781b      	ldrb	r3, [r3, #0]
+ 8001a0e:	2b00      	cmp	r3, #0
+ 8001a10:	d00c      	beq.n	8001a2c <main+0x434>
 					{
 						HoldPrepareMotorUntill(Buttons[i].addiction, 1);
- 8001a06:	79bb      	ldrb	r3, [r7, #6]
- 8001a08:	4a5c      	ldr	r2, [pc, #368]	; (8001b7c <main+0x584>)
- 8001a0a:	212c      	movs	r1, #44	; 0x2c
- 8001a0c:	fb01 f303 	mul.w	r3, r1, r3
- 8001a10:	4413      	add	r3, r2
- 8001a12:	331c      	adds	r3, #28
- 8001a14:	681b      	ldr	r3, [r3, #0]
- 8001a16:	2101      	movs	r1, #1
- 8001a18:	4618      	mov	r0, r3
- 8001a1a:	f000 fedf 	bl	80027dc <HoldPrepareMotorUntill>
+ 8001a12:	79bb      	ldrb	r3, [r7, #6]
+ 8001a14:	4a61      	ldr	r2, [pc, #388]	; (8001b9c <main+0x5a4>)
+ 8001a16:	212c      	movs	r1, #44	; 0x2c
+ 8001a18:	fb01 f303 	mul.w	r3, r1, r3
+ 8001a1c:	4413      	add	r3, r2
+ 8001a1e:	331c      	adds	r3, #28
+ 8001a20:	681b      	ldr	r3, [r3, #0]
+ 8001a22:	2101      	movs	r1, #1
+ 8001a24:	4618      	mov	r0, r3
+ 8001a26:	f000 fed9 	bl	80027dc <HoldPrepareMotorUntill>
 						//Buttons[i].B_Out = 0;
 						continue;
- 8001a1e:	e014      	b.n	8001a4a <main+0x452>
+ 8001a2a:	e014      	b.n	8001a56 <main+0x45e>
 					}
 				}
 				if(Buttons[i].Mode == 200) {Buttons[i].B_Out = 0;}
- 8001a20:	79bb      	ldrb	r3, [r7, #6]
- 8001a22:	4a56      	ldr	r2, [pc, #344]	; (8001b7c <main+0x584>)
- 8001a24:	212c      	movs	r1, #44	; 0x2c
- 8001a26:	fb01 f303 	mul.w	r3, r1, r3
- 8001a2a:	4413      	add	r3, r2
- 8001a2c:	3316      	adds	r3, #22
- 8001a2e:	781b      	ldrb	r3, [r3, #0]
- 8001a30:	2bc8      	cmp	r3, #200	; 0xc8
- 8001a32:	d10a      	bne.n	8001a4a <main+0x452>
- 8001a34:	79bb      	ldrb	r3, [r7, #6]
- 8001a36:	4a51      	ldr	r2, [pc, #324]	; (8001b7c <main+0x584>)
- 8001a38:	212c      	movs	r1, #44	; 0x2c
- 8001a3a:	fb01 f303 	mul.w	r3, r1, r3
- 8001a3e:	4413      	add	r3, r2
- 8001a40:	3314      	adds	r3, #20
- 8001a42:	2200      	movs	r2, #0
- 8001a44:	701a      	strb	r2, [r3, #0]
- 8001a46:	e000      	b.n	8001a4a <main+0x452>
+ 8001a2c:	79bb      	ldrb	r3, [r7, #6]
+ 8001a2e:	4a5b      	ldr	r2, [pc, #364]	; (8001b9c <main+0x5a4>)
+ 8001a30:	212c      	movs	r1, #44	; 0x2c
+ 8001a32:	fb01 f303 	mul.w	r3, r1, r3
+ 8001a36:	4413      	add	r3, r2
+ 8001a38:	3316      	adds	r3, #22
+ 8001a3a:	781b      	ldrb	r3, [r3, #0]
+ 8001a3c:	2bc8      	cmp	r3, #200	; 0xc8
+ 8001a3e:	d10a      	bne.n	8001a56 <main+0x45e>
+ 8001a40:	79bb      	ldrb	r3, [r7, #6]
+ 8001a42:	4a56      	ldr	r2, [pc, #344]	; (8001b9c <main+0x5a4>)
+ 8001a44:	212c      	movs	r1, #44	; 0x2c
+ 8001a46:	fb01 f303 	mul.w	r3, r1, r3
+ 8001a4a:	4413      	add	r3, r2
+ 8001a4c:	3314      	adds	r3, #20
+ 8001a4e:	2200      	movs	r2, #0
+ 8001a50:	701a      	strb	r2, [r3, #0]
+ 8001a52:	e000      	b.n	8001a56 <main+0x45e>
 						if(Buttons[i].addiction->B_Out == 0) continue;
- 8001a48:	bf00      	nop
+ 8001a54:	bf00      	nop
 			for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
- 8001a4a:	79bb      	ldrb	r3, [r7, #6]
- 8001a4c:	3301      	adds	r3, #1
- 8001a4e:	71bb      	strb	r3, [r7, #6]
- 8001a50:	79bb      	ldrb	r3, [r7, #6]
- 8001a52:	2b0f      	cmp	r3, #15
- 8001a54:	f67f ae29 	bls.w	80016aa <main+0xb2>
- 8001a58:	e600      	b.n	800165c <main+0x64>
+ 8001a56:	79bb      	ldrb	r3, [r7, #6]
+ 8001a58:	3301      	adds	r3, #1
+ 8001a5a:	71bb      	strb	r3, [r7, #6]
+ 8001a5c:	79bb      	ldrb	r3, [r7, #6]
+ 8001a5e:	2b0f      	cmp	r3, #15
+ 8001a60:	f67f ae27 	bls.w	80016b2 <main+0xba>
+ 8001a64:	e5fa      	b.n	800165c <main+0x64>
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 		else
 		{
 			if(tmpflg)
- 8001a5a:	4b49      	ldr	r3, [pc, #292]	; (8001b80 <main+0x588>)
- 8001a5c:	781b      	ldrb	r3, [r3, #0]
- 8001a5e:	2b00      	cmp	r3, #0
- 8001a60:	d006      	beq.n	8001a70 <main+0x478>
+ 8001a66:	4b4e      	ldr	r3, [pc, #312]	; (8001ba0 <main+0x5a8>)
+ 8001a68:	781b      	ldrb	r3, [r3, #0]
+ 8001a6a:	2b00      	cmp	r3, #0
+ 8001a6c:	d006      	beq.n	8001a7c <main+0x484>
 			{
 				tmpflg = 0;
- 8001a62:	4b47      	ldr	r3, [pc, #284]	; (8001b80 <main+0x588>)
- 8001a64:	2200      	movs	r2, #0
- 8001a66:	701a      	strb	r2, [r3, #0]
+ 8001a6e:	4b4c      	ldr	r3, [pc, #304]	; (8001ba0 <main+0x5a8>)
+ 8001a70:	2200      	movs	r2, #0
+ 8001a72:	701a      	strb	r2, [r3, #0]
 				Buttons[10].B_Out = 0;
- 8001a68:	4b44      	ldr	r3, [pc, #272]	; (8001b7c <main+0x584>)
- 8001a6a:	2200      	movs	r2, #0
- 8001a6c:	f883 21cc 	strb.w	r2, [r3, #460]	; 0x1cc
-			}
-			//AUTO MODE
+ 8001a74:	4b49      	ldr	r3, [pc, #292]	; (8001b9c <main+0x5a4>)
+ 8001a76:	2200      	movs	r2, #0
+ 8001a78:	f883 21cc 	strb.w	r2, [r3, #460]	; 0x1cc
+			#define WELD_V_STOP HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
+			#define PULL TimerMotor(&Buttons[7]); // PULL mat.
+			#define DOSE TimerMotor(&Buttons[2]); // Dose
+			#define CYCLE_DELAY HAL_Delay(75);
+			#define WELD_TIME HAL_Delay(300);
 			if(Buttons[10].B_Out) // AUTO MODE START
- 8001a70:	4b42      	ldr	r3, [pc, #264]	; (8001b7c <main+0x584>)
- 8001a72:	f893 31cc 	ldrb.w	r3, [r3, #460]	; 0x1cc
- 8001a76:	2b00      	cmp	r3, #0
- 8001a78:	f000 810d 	beq.w	8001c96 <main+0x69e>
-				if(Buttons[13].B_State == 1) // REED SWITCH
-				{
-					HoldMotor(&Buttons[13], 1); // Prepare mat.
-				}
-				*/
+ 8001a7c:	4b47      	ldr	r3, [pc, #284]	; (8001b9c <main+0x5a4>)
+ 8001a7e:	f893 31cc 	ldrb.w	r3, [r3, #460]	; 0x1cc
+ 8001a82:	2b00      	cmp	r3, #0
+ 8001a84:	f000 8109 	beq.w	8001c9a <main+0x6a2>
+			{
 				if(Buttons[15].B_State == 1)
- 8001a7c:	4b3f      	ldr	r3, [pc, #252]	; (8001b7c <main+0x584>)
- 8001a7e:	f893 32a7 	ldrb.w	r3, [r3, #679]	; 0x2a7
- 8001a82:	2b01      	cmp	r3, #1
- 8001a84:	f040 8086 	bne.w	8001b94 <main+0x59c>
+ 8001a88:	4b44      	ldr	r3, [pc, #272]	; (8001b9c <main+0x5a4>)
+ 8001a8a:	f893 32a7 	ldrb.w	r3, [r3, #679]	; 0x2a7
+ 8001a8e:	2b01      	cmp	r3, #1
+ 8001a90:	f040 8090 	bne.w	8001bb4 <main+0x5bc>
 				{
 					Pullsteps = PULL_STEPS;
- 8001a88:	4b3e      	ldr	r3, [pc, #248]	; (8001b84 <main+0x58c>)
- 8001a8a:	f240 424c 	movw	r2, #1100	; 0x44c
- 8001a8e:	601a      	str	r2, [r3, #0]
+ 8001a94:	4b43      	ldr	r3, [pc, #268]	; (8001ba4 <main+0x5ac>)
+ 8001a96:	f240 424c 	movw	r2, #1100	; 0x44c
+ 8001a9a:	601a      	str	r2, [r3, #0]
 					Dosesteps = STEPS;
- 8001a90:	4b3d      	ldr	r3, [pc, #244]	; (8001b88 <main+0x590>)
- 8001a92:	f241 12f8 	movw	r2, #4600	; 0x11f8
- 8001a96:	601a      	str	r2, [r3, #0]
-					TimerMotor(&Buttons[7]); // PULL mat.
- 8001a98:	483c      	ldr	r0, [pc, #240]	; (8001b8c <main+0x594>)
- 8001a9a:	f000 fecf 	bl	800283c <TimerMotor>
-					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
- 8001a9e:	4b37      	ldr	r3, [pc, #220]	; (8001b7c <main+0x584>)
- 8001aa0:	f8d3 0090 	ldr.w	r0, [r3, #144]	; 0x90
- 8001aa4:	4b35      	ldr	r3, [pc, #212]	; (8001b7c <main+0x584>)
- 8001aa6:	f8b3 3094 	ldrh.w	r3, [r3, #148]	; 0x94
- 8001aaa:	2200      	movs	r2, #0
- 8001aac:	4619      	mov	r1, r3
- 8001aae:	f002 f811 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
- 8001ab2:	4b32      	ldr	r3, [pc, #200]	; (8001b7c <main+0x584>)
- 8001ab4:	f8d3 00bc 	ldr.w	r0, [r3, #188]	; 0xbc
- 8001ab8:	4b30      	ldr	r3, [pc, #192]	; (8001b7c <main+0x584>)
- 8001aba:	f8b3 30ec 	ldrh.w	r3, [r3, #236]	; 0xec
- 8001abe:	2200      	movs	r2, #0
- 8001ac0:	4619      	mov	r1, r3
- 8001ac2:	f002 f807 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_Delay(200);
- 8001ac6:	20c8      	movs	r0, #200	; 0xc8
- 8001ac8:	f001 f9fc 	bl	8002ec4 <HAL_Delay>
-					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 0); // CUT
- 8001acc:	4b2b      	ldr	r3, [pc, #172]	; (8001b7c <main+0x584>)
- 8001ace:	f8d3 016c 	ldr.w	r0, [r3, #364]	; 0x16c
- 8001ad2:	4b2a      	ldr	r3, [pc, #168]	; (8001b7c <main+0x584>)
- 8001ad4:	f8b3 3170 	ldrh.w	r3, [r3, #368]	; 0x170
- 8001ad8:	2200      	movs	r2, #0
- 8001ada:	4619      	mov	r1, r3
- 8001adc:	f001 fffa 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[4].GPIO_Pin_Out, 0); // Weld
- 8001ae0:	4b26      	ldr	r3, [pc, #152]	; (8001b7c <main+0x584>)
- 8001ae2:	f8d3 00e8 	ldr.w	r0, [r3, #232]	; 0xe8
- 8001ae6:	4b25      	ldr	r3, [pc, #148]	; (8001b7c <main+0x584>)
- 8001ae8:	f8b3 30c0 	ldrh.w	r3, [r3, #192]	; 0xc0
- 8001aec:	2200      	movs	r2, #0
- 8001aee:	4619      	mov	r1, r3
- 8001af0:	f001 fff0 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0); // Weld
- 8001af4:	4b21      	ldr	r3, [pc, #132]	; (8001b7c <main+0x584>)
- 8001af6:	f8d3 0114 	ldr.w	r0, [r3, #276]	; 0x114
- 8001afa:	4b20      	ldr	r3, [pc, #128]	; (8001b7c <main+0x584>)
- 8001afc:	f8b3 3118 	ldrh.w	r3, [r3, #280]	; 0x118
- 8001b00:	2200      	movs	r2, #0
- 8001b02:	4619      	mov	r1, r3
- 8001b04:	f001 ffe6 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_Delay(300);
- 8001b08:	f44f 7096 	mov.w	r0, #300	; 0x12c
- 8001b0c:	f001 f9da 	bl	8002ec4 <HAL_Delay>
-					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 1); /*Release*/
- 8001b10:	4b1a      	ldr	r3, [pc, #104]	; (8001b7c <main+0x584>)
- 8001b12:	f8d3 016c 	ldr.w	r0, [r3, #364]	; 0x16c
- 8001b16:	4b19      	ldr	r3, [pc, #100]	; (8001b7c <main+0x584>)
- 8001b18:	f8b3 3170 	ldrh.w	r3, [r3, #368]	; 0x170
- 8001b1c:	2201      	movs	r2, #1
- 8001b1e:	4619      	mov	r1, r3
- 8001b20:	f001 ffd8 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1);
- 8001b24:	4b15      	ldr	r3, [pc, #84]	; (8001b7c <main+0x584>)
- 8001b26:	f8d3 0090 	ldr.w	r0, [r3, #144]	; 0x90
- 8001b2a:	4b14      	ldr	r3, [pc, #80]	; (8001b7c <main+0x584>)
- 8001b2c:	f8b3 3094 	ldrh.w	r3, [r3, #148]	; 0x94
- 8001b30:	2201      	movs	r2, #1
- 8001b32:	4619      	mov	r1, r3
- 8001b34:	f001 ffce 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 1);
- 8001b38:	4b10      	ldr	r3, [pc, #64]	; (8001b7c <main+0x584>)
- 8001b3a:	f8d3 00bc 	ldr.w	r0, [r3, #188]	; 0xbc
- 8001b3e:	4b0f      	ldr	r3, [pc, #60]	; (8001b7c <main+0x584>)
- 8001b40:	f8b3 30c0 	ldrh.w	r3, [r3, #192]	; 0xc0
- 8001b44:	2201      	movs	r2, #1
- 8001b46:	4619      	mov	r1, r3
- 8001b48:	f001 ffc4 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1);
- 8001b4c:	4b0b      	ldr	r3, [pc, #44]	; (8001b7c <main+0x584>)
- 8001b4e:	f8d3 00e8 	ldr.w	r0, [r3, #232]	; 0xe8
- 8001b52:	4b0a      	ldr	r3, [pc, #40]	; (8001b7c <main+0x584>)
- 8001b54:	f8b3 30ec 	ldrh.w	r3, [r3, #236]	; 0xec
- 8001b58:	2201      	movs	r2, #1
- 8001b5a:	4619      	mov	r1, r3
- 8001b5c:	f001 ffba 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
- 8001b60:	4b06      	ldr	r3, [pc, #24]	; (8001b7c <main+0x584>)
- 8001b62:	f8d3 0114 	ldr.w	r0, [r3, #276]	; 0x114
- 8001b66:	4b05      	ldr	r3, [pc, #20]	; (8001b7c <main+0x584>)
- 8001b68:	f8b3 3118 	ldrh.w	r3, [r3, #280]	; 0x118
- 8001b6c:	2201      	movs	r2, #1
- 8001b6e:	4619      	mov	r1, r3
- 8001b70:	f001 ffb0 	bl	8003ad4 <HAL_GPIO_WritePin>
-					TimerMotor(&Buttons[2]); // Dose
- 8001b74:	4806      	ldr	r0, [pc, #24]	; (8001b90 <main+0x598>)
- 8001b76:	f000 fe61 	bl	800283c <TimerMotor>
- 8001b7a:	e084      	b.n	8001c86 <main+0x68e>
- 8001b7c:	200008ac 	.word	0x200008ac
- 8001b80:	20000804 	.word	0x20000804
- 8001b84:	20000000 	.word	0x20000000
- 8001b88:	20000004 	.word	0x20000004
- 8001b8c:	200009e0 	.word	0x200009e0
- 8001b90:	20000904 	.word	0x20000904
+ 8001a9c:	4b42      	ldr	r3, [pc, #264]	; (8001ba8 <main+0x5b0>)
+ 8001a9e:	f241 12f8 	movw	r2, #4600	; 0x11f8
+ 8001aa2:	601a      	str	r2, [r3, #0]
+					//Pull new material
+					PULL
+ 8001aa4:	4841      	ldr	r0, [pc, #260]	; (8001bac <main+0x5b4>)
+ 8001aa6:	f000 fec9 	bl	800283c <TimerMotor>
+
+					CYCLE_DELAY
+ 8001aaa:	204b      	movs	r0, #75	; 0x4b
+ 8001aac:	f001 fa0a 	bl	8002ec4 <HAL_Delay>
+					//Clamp material
+					PUSH_H
+ 8001ab0:	4b3a      	ldr	r3, [pc, #232]	; (8001b9c <main+0x5a4>)
+ 8001ab2:	f8d3 0090 	ldr.w	r0, [r3, #144]	; 0x90
+ 8001ab6:	4b39      	ldr	r3, [pc, #228]	; (8001b9c <main+0x5a4>)
+ 8001ab8:	f8b3 3094 	ldrh.w	r3, [r3, #148]	; 0x94
+ 8001abc:	2200      	movs	r2, #0
+ 8001abe:	4619      	mov	r1, r3
+ 8001ac0:	f002 f808 	bl	8003ad4 <HAL_GPIO_WritePin>
+					PUSH_V
+ 8001ac4:	4b35      	ldr	r3, [pc, #212]	; (8001b9c <main+0x5a4>)
+ 8001ac6:	f8d3 00e8 	ldr.w	r0, [r3, #232]	; 0xe8
+ 8001aca:	4b34      	ldr	r3, [pc, #208]	; (8001b9c <main+0x5a4>)
+ 8001acc:	f8b3 30ec 	ldrh.w	r3, [r3, #236]	; 0xec
+ 8001ad0:	2200      	movs	r2, #0
+ 8001ad2:	4619      	mov	r1, r3
+ 8001ad4:	f001 fffe 	bl	8003ad4 <HAL_GPIO_WritePin>
+
+					CYCLE_DELAY
+ 8001ad8:	204b      	movs	r0, #75	; 0x4b
+ 8001ada:	f001 f9f3 	bl	8002ec4 <HAL_Delay>
+					//Welding
+					WELD_H_START
+ 8001ade:	4b2f      	ldr	r3, [pc, #188]	; (8001b9c <main+0x5a4>)
+ 8001ae0:	f8d3 00bc 	ldr.w	r0, [r3, #188]	; 0xbc
+ 8001ae4:	4b2d      	ldr	r3, [pc, #180]	; (8001b9c <main+0x5a4>)
+ 8001ae6:	f8b3 30c0 	ldrh.w	r3, [r3, #192]	; 0xc0
+ 8001aea:	2200      	movs	r2, #0
+ 8001aec:	4619      	mov	r1, r3
+ 8001aee:	f001 fff1 	bl	8003ad4 <HAL_GPIO_WritePin>
+					WELD_V_START
+ 8001af2:	4b2a      	ldr	r3, [pc, #168]	; (8001b9c <main+0x5a4>)
+ 8001af4:	f8d3 0114 	ldr.w	r0, [r3, #276]	; 0x114
+ 8001af8:	4b28      	ldr	r3, [pc, #160]	; (8001b9c <main+0x5a4>)
+ 8001afa:	f8b3 3118 	ldrh.w	r3, [r3, #280]	; 0x118
+ 8001afe:	2200      	movs	r2, #0
+ 8001b00:	4619      	mov	r1, r3
+ 8001b02:	f001 ffe7 	bl	8003ad4 <HAL_GPIO_WritePin>
+					WELD_TIME
+ 8001b06:	f44f 7096 	mov.w	r0, #300	; 0x12c
+ 8001b0a:	f001 f9db 	bl	8002ec4 <HAL_Delay>
+					WELD_H_STOP
+ 8001b0e:	4b23      	ldr	r3, [pc, #140]	; (8001b9c <main+0x5a4>)
+ 8001b10:	f8d3 00bc 	ldr.w	r0, [r3, #188]	; 0xbc
+ 8001b14:	4b21      	ldr	r3, [pc, #132]	; (8001b9c <main+0x5a4>)
+ 8001b16:	f8b3 30c0 	ldrh.w	r3, [r3, #192]	; 0xc0
+ 8001b1a:	2201      	movs	r2, #1
+ 8001b1c:	4619      	mov	r1, r3
+ 8001b1e:	f001 ffd9 	bl	8003ad4 <HAL_GPIO_WritePin>
+					WELD_V_STOP
+ 8001b22:	4b1e      	ldr	r3, [pc, #120]	; (8001b9c <main+0x5a4>)
+ 8001b24:	f8d3 0114 	ldr.w	r0, [r3, #276]	; 0x114
+ 8001b28:	4b1c      	ldr	r3, [pc, #112]	; (8001b9c <main+0x5a4>)
+ 8001b2a:	f8b3 3118 	ldrh.w	r3, [r3, #280]	; 0x118
+ 8001b2e:	2201      	movs	r2, #1
+ 8001b30:	4619      	mov	r1, r3
+ 8001b32:	f001 ffcf 	bl	8003ad4 <HAL_GPIO_WritePin>
+					CUT_START
+ 8001b36:	4b19      	ldr	r3, [pc, #100]	; (8001b9c <main+0x5a4>)
+ 8001b38:	f8d3 016c 	ldr.w	r0, [r3, #364]	; 0x16c
+ 8001b3c:	4b17      	ldr	r3, [pc, #92]	; (8001b9c <main+0x5a4>)
+ 8001b3e:	f8b3 3170 	ldrh.w	r3, [r3, #368]	; 0x170
+ 8001b42:	2200      	movs	r2, #0
+ 8001b44:	4619      	mov	r1, r3
+ 8001b46:	f001 ffc5 	bl	8003ad4 <HAL_GPIO_WritePin>
+
+					CYCLE_DELAY
+ 8001b4a:	204b      	movs	r0, #75	; 0x4b
+ 8001b4c:	f001 f9ba 	bl	8002ec4 <HAL_Delay>
+					//Cut, fill, release
+					CUT_RELEASE
+ 8001b50:	4b12      	ldr	r3, [pc, #72]	; (8001b9c <main+0x5a4>)
+ 8001b52:	f8d3 016c 	ldr.w	r0, [r3, #364]	; 0x16c
+ 8001b56:	4b11      	ldr	r3, [pc, #68]	; (8001b9c <main+0x5a4>)
+ 8001b58:	f8b3 3170 	ldrh.w	r3, [r3, #368]	; 0x170
+ 8001b5c:	2201      	movs	r2, #1
+ 8001b5e:	4619      	mov	r1, r3
+ 8001b60:	f001 ffb8 	bl	8003ad4 <HAL_GPIO_WritePin>
+					DOSE
+ 8001b64:	4812      	ldr	r0, [pc, #72]	; (8001bb0 <main+0x5b8>)
+ 8001b66:	f000 fe69 	bl	800283c <TimerMotor>
+					RELEASE_H
+ 8001b6a:	4b0c      	ldr	r3, [pc, #48]	; (8001b9c <main+0x5a4>)
+ 8001b6c:	f8d3 0090 	ldr.w	r0, [r3, #144]	; 0x90
+ 8001b70:	4b0a      	ldr	r3, [pc, #40]	; (8001b9c <main+0x5a4>)
+ 8001b72:	f8b3 3094 	ldrh.w	r3, [r3, #148]	; 0x94
+ 8001b76:	2201      	movs	r2, #1
+ 8001b78:	4619      	mov	r1, r3
+ 8001b7a:	f001 ffab 	bl	8003ad4 <HAL_GPIO_WritePin>
+					RELEASE_V
+ 8001b7e:	4b07      	ldr	r3, [pc, #28]	; (8001b9c <main+0x5a4>)
+ 8001b80:	f8d3 00e8 	ldr.w	r0, [r3, #232]	; 0xe8
+ 8001b84:	4b05      	ldr	r3, [pc, #20]	; (8001b9c <main+0x5a4>)
+ 8001b86:	f8b3 30ec 	ldrh.w	r3, [r3, #236]	; 0xec
+ 8001b8a:	2201      	movs	r2, #1
+ 8001b8c:	4619      	mov	r1, r3
+ 8001b8e:	f001 ffa1 	bl	8003ad4 <HAL_GPIO_WritePin>
+
+					CYCLE_DELAY
+ 8001b92:	204b      	movs	r0, #75	; 0x4b
+ 8001b94:	f001 f996 	bl	8002ec4 <HAL_Delay>
+ 8001b98:	e077      	b.n	8001c8a <main+0x692>
+ 8001b9a:	bf00      	nop
+ 8001b9c:	200008ac 	.word	0x200008ac
+ 8001ba0:	20000804 	.word	0x20000804
+ 8001ba4:	20000000 	.word	0x20000000
+ 8001ba8:	20000004 	.word	0x20000004
+ 8001bac:	200009e0 	.word	0x200009e0
+ 8001bb0:	20000904 	.word	0x20000904
 				}
 				else
 				{
 					Pullsteps = PULL_STEPS / 2;
- 8001b94:	4b48      	ldr	r3, [pc, #288]	; (8001cb8 <main+0x6c0>)
- 8001b96:	f240 2226 	movw	r2, #550	; 0x226
- 8001b9a:	601a      	str	r2, [r3, #0]
+ 8001bb4:	4b41      	ldr	r3, [pc, #260]	; (8001cbc <main+0x6c4>)
+ 8001bb6:	f240 2226 	movw	r2, #550	; 0x226
+ 8001bba:	601a      	str	r2, [r3, #0]
 					Dosesteps = STEPS / 2;
- 8001b9c:	4b47      	ldr	r3, [pc, #284]	; (8001cbc <main+0x6c4>)
- 8001b9e:	f640 02fc 	movw	r2, #2300	; 0x8fc
- 8001ba2:	601a      	str	r2, [r3, #0]
-					TimerMotor(&Buttons[7]); // PULL mat.
- 8001ba4:	4846      	ldr	r0, [pc, #280]	; (8001cc0 <main+0x6c8>)
- 8001ba6:	f000 fe49 	bl	800283c <TimerMotor>
-					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
- 8001baa:	4b46      	ldr	r3, [pc, #280]	; (8001cc4 <main+0x6cc>)
- 8001bac:	f8d3 0090 	ldr.w	r0, [r3, #144]	; 0x90
- 8001bb0:	4b44      	ldr	r3, [pc, #272]	; (8001cc4 <main+0x6cc>)
- 8001bb2:	f8b3 3094 	ldrh.w	r3, [r3, #148]	; 0x94
- 8001bb6:	2200      	movs	r2, #0
- 8001bb8:	4619      	mov	r1, r3
- 8001bba:	f001 ff8b 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
- 8001bbe:	4b41      	ldr	r3, [pc, #260]	; (8001cc4 <main+0x6cc>)
- 8001bc0:	f8d3 00bc 	ldr.w	r0, [r3, #188]	; 0xbc
- 8001bc4:	4b3f      	ldr	r3, [pc, #252]	; (8001cc4 <main+0x6cc>)
- 8001bc6:	f8b3 30ec 	ldrh.w	r3, [r3, #236]	; 0xec
- 8001bca:	2200      	movs	r2, #0
- 8001bcc:	4619      	mov	r1, r3
- 8001bce:	f001 ff81 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_Delay(200);
- 8001bd2:	20c8      	movs	r0, #200	; 0xc8
- 8001bd4:	f001 f976 	bl	8002ec4 <HAL_Delay>
-					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 0); // CUT
- 8001bd8:	4b3a      	ldr	r3, [pc, #232]	; (8001cc4 <main+0x6cc>)
- 8001bda:	f8d3 016c 	ldr.w	r0, [r3, #364]	; 0x16c
- 8001bde:	4b39      	ldr	r3, [pc, #228]	; (8001cc4 <main+0x6cc>)
- 8001be0:	f8b3 3170 	ldrh.w	r3, [r3, #368]	; 0x170
- 8001be4:	2200      	movs	r2, #0
- 8001be6:	4619      	mov	r1, r3
- 8001be8:	f001 ff74 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[4].GPIO_Pin_Out, 0); // Weld
- 8001bec:	4b35      	ldr	r3, [pc, #212]	; (8001cc4 <main+0x6cc>)
- 8001bee:	f8d3 00e8 	ldr.w	r0, [r3, #232]	; 0xe8
- 8001bf2:	4b34      	ldr	r3, [pc, #208]	; (8001cc4 <main+0x6cc>)
- 8001bf4:	f8b3 30c0 	ldrh.w	r3, [r3, #192]	; 0xc0
- 8001bf8:	2200      	movs	r2, #0
- 8001bfa:	4619      	mov	r1, r3
- 8001bfc:	f001 ff6a 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0); // Weld
- 8001c00:	4b30      	ldr	r3, [pc, #192]	; (8001cc4 <main+0x6cc>)
- 8001c02:	f8d3 0114 	ldr.w	r0, [r3, #276]	; 0x114
- 8001c06:	4b2f      	ldr	r3, [pc, #188]	; (8001cc4 <main+0x6cc>)
- 8001c08:	f8b3 3118 	ldrh.w	r3, [r3, #280]	; 0x118
- 8001c0c:	2200      	movs	r2, #0
- 8001c0e:	4619      	mov	r1, r3
- 8001c10:	f001 ff60 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_Delay(300);
- 8001c14:	f44f 7096 	mov.w	r0, #300	; 0x12c
- 8001c18:	f001 f954 	bl	8002ec4 <HAL_Delay>
-					HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 1); /*Release*/
- 8001c1c:	4b29      	ldr	r3, [pc, #164]	; (8001cc4 <main+0x6cc>)
- 8001c1e:	f8d3 016c 	ldr.w	r0, [r3, #364]	; 0x16c
- 8001c22:	4b28      	ldr	r3, [pc, #160]	; (8001cc4 <main+0x6cc>)
- 8001c24:	f8b3 3170 	ldrh.w	r3, [r3, #368]	; 0x170
- 8001c28:	2201      	movs	r2, #1
- 8001c2a:	4619      	mov	r1, r3
- 8001c2c:	f001 ff52 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1);
- 8001c30:	4b24      	ldr	r3, [pc, #144]	; (8001cc4 <main+0x6cc>)
- 8001c32:	f8d3 0090 	ldr.w	r0, [r3, #144]	; 0x90
- 8001c36:	4b23      	ldr	r3, [pc, #140]	; (8001cc4 <main+0x6cc>)
- 8001c38:	f8b3 3094 	ldrh.w	r3, [r3, #148]	; 0x94
- 8001c3c:	2201      	movs	r2, #1
- 8001c3e:	4619      	mov	r1, r3
- 8001c40:	f001 ff48 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 1);
- 8001c44:	4b1f      	ldr	r3, [pc, #124]	; (8001cc4 <main+0x6cc>)
- 8001c46:	f8d3 00bc 	ldr.w	r0, [r3, #188]	; 0xbc
- 8001c4a:	4b1e      	ldr	r3, [pc, #120]	; (8001cc4 <main+0x6cc>)
- 8001c4c:	f8b3 30c0 	ldrh.w	r3, [r3, #192]	; 0xc0
- 8001c50:	2201      	movs	r2, #1
- 8001c52:	4619      	mov	r1, r3
- 8001c54:	f001 ff3e 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1);
- 8001c58:	4b1a      	ldr	r3, [pc, #104]	; (8001cc4 <main+0x6cc>)
- 8001c5a:	f8d3 00e8 	ldr.w	r0, [r3, #232]	; 0xe8
- 8001c5e:	4b19      	ldr	r3, [pc, #100]	; (8001cc4 <main+0x6cc>)
- 8001c60:	f8b3 30ec 	ldrh.w	r3, [r3, #236]	; 0xec
- 8001c64:	2201      	movs	r2, #1
- 8001c66:	4619      	mov	r1, r3
- 8001c68:	f001 ff34 	bl	8003ad4 <HAL_GPIO_WritePin>
-					HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
- 8001c6c:	4b15      	ldr	r3, [pc, #84]	; (8001cc4 <main+0x6cc>)
- 8001c6e:	f8d3 0114 	ldr.w	r0, [r3, #276]	; 0x114
- 8001c72:	4b14      	ldr	r3, [pc, #80]	; (8001cc4 <main+0x6cc>)
- 8001c74:	f8b3 3118 	ldrh.w	r3, [r3, #280]	; 0x118
- 8001c78:	2201      	movs	r2, #1
- 8001c7a:	4619      	mov	r1, r3
- 8001c7c:	f001 ff2a 	bl	8003ad4 <HAL_GPIO_WritePin>
-					TimerMotor(&Buttons[2]); // Dose
- 8001c80:	4811      	ldr	r0, [pc, #68]	; (8001cc8 <main+0x6d0>)
- 8001c82:	f000 fddb 	bl	800283c <TimerMotor>
+ 8001bbc:	4b40      	ldr	r3, [pc, #256]	; (8001cc0 <main+0x6c8>)
+ 8001bbe:	f640 02fc 	movw	r2, #2300	; 0x8fc
+ 8001bc2:	601a      	str	r2, [r3, #0]
+					PULL
+ 8001bc4:	483f      	ldr	r0, [pc, #252]	; (8001cc4 <main+0x6cc>)
+ 8001bc6:	f000 fe39 	bl	800283c <TimerMotor>
+					CYCLE_DELAY
+ 8001bca:	204b      	movs	r0, #75	; 0x4b
+ 8001bcc:	f001 f97a 	bl	8002ec4 <HAL_Delay>
+					PUSH_H
+ 8001bd0:	4b3d      	ldr	r3, [pc, #244]	; (8001cc8 <main+0x6d0>)
+ 8001bd2:	f8d3 0090 	ldr.w	r0, [r3, #144]	; 0x90
+ 8001bd6:	4b3c      	ldr	r3, [pc, #240]	; (8001cc8 <main+0x6d0>)
+ 8001bd8:	f8b3 3094 	ldrh.w	r3, [r3, #148]	; 0x94
+ 8001bdc:	2200      	movs	r2, #0
+ 8001bde:	4619      	mov	r1, r3
+ 8001be0:	f001 ff78 	bl	8003ad4 <HAL_GPIO_WritePin>
+					PUSH_V
+ 8001be4:	4b38      	ldr	r3, [pc, #224]	; (8001cc8 <main+0x6d0>)
+ 8001be6:	f8d3 00e8 	ldr.w	r0, [r3, #232]	; 0xe8
+ 8001bea:	4b37      	ldr	r3, [pc, #220]	; (8001cc8 <main+0x6d0>)
+ 8001bec:	f8b3 30ec 	ldrh.w	r3, [r3, #236]	; 0xec
+ 8001bf0:	2200      	movs	r2, #0
+ 8001bf2:	4619      	mov	r1, r3
+ 8001bf4:	f001 ff6e 	bl	8003ad4 <HAL_GPIO_WritePin>
+					CYCLE_DELAY
+ 8001bf8:	204b      	movs	r0, #75	; 0x4b
+ 8001bfa:	f001 f963 	bl	8002ec4 <HAL_Delay>
+					WELD_H_START
+ 8001bfe:	4b32      	ldr	r3, [pc, #200]	; (8001cc8 <main+0x6d0>)
+ 8001c00:	f8d3 00bc 	ldr.w	r0, [r3, #188]	; 0xbc
+ 8001c04:	4b30      	ldr	r3, [pc, #192]	; (8001cc8 <main+0x6d0>)
+ 8001c06:	f8b3 30c0 	ldrh.w	r3, [r3, #192]	; 0xc0
+ 8001c0a:	2200      	movs	r2, #0
+ 8001c0c:	4619      	mov	r1, r3
+ 8001c0e:	f001 ff61 	bl	8003ad4 <HAL_GPIO_WritePin>
+					WELD_V_START
+ 8001c12:	4b2d      	ldr	r3, [pc, #180]	; (8001cc8 <main+0x6d0>)
+ 8001c14:	f8d3 0114 	ldr.w	r0, [r3, #276]	; 0x114
+ 8001c18:	4b2b      	ldr	r3, [pc, #172]	; (8001cc8 <main+0x6d0>)
+ 8001c1a:	f8b3 3118 	ldrh.w	r3, [r3, #280]	; 0x118
+ 8001c1e:	2200      	movs	r2, #0
+ 8001c20:	4619      	mov	r1, r3
+ 8001c22:	f001 ff57 	bl	8003ad4 <HAL_GPIO_WritePin>
+					WELD_TIME
+ 8001c26:	f44f 7096 	mov.w	r0, #300	; 0x12c
+ 8001c2a:	f001 f94b 	bl	8002ec4 <HAL_Delay>
+					WELD_H_STOP
+ 8001c2e:	4b26      	ldr	r3, [pc, #152]	; (8001cc8 <main+0x6d0>)
+ 8001c30:	f8d3 00bc 	ldr.w	r0, [r3, #188]	; 0xbc
+ 8001c34:	4b24      	ldr	r3, [pc, #144]	; (8001cc8 <main+0x6d0>)
+ 8001c36:	f8b3 30c0 	ldrh.w	r3, [r3, #192]	; 0xc0
+ 8001c3a:	2201      	movs	r2, #1
+ 8001c3c:	4619      	mov	r1, r3
+ 8001c3e:	f001 ff49 	bl	8003ad4 <HAL_GPIO_WritePin>
+					WELD_V_STOP
+ 8001c42:	4b21      	ldr	r3, [pc, #132]	; (8001cc8 <main+0x6d0>)
+ 8001c44:	f8d3 0114 	ldr.w	r0, [r3, #276]	; 0x114
+ 8001c48:	4b1f      	ldr	r3, [pc, #124]	; (8001cc8 <main+0x6d0>)
+ 8001c4a:	f8b3 3118 	ldrh.w	r3, [r3, #280]	; 0x118
+ 8001c4e:	2201      	movs	r2, #1
+ 8001c50:	4619      	mov	r1, r3
+ 8001c52:	f001 ff3f 	bl	8003ad4 <HAL_GPIO_WritePin>
+					CYCLE_DELAY
+ 8001c56:	204b      	movs	r0, #75	; 0x4b
+ 8001c58:	f001 f934 	bl	8002ec4 <HAL_Delay>
+					RELEASE_H
+ 8001c5c:	4b1a      	ldr	r3, [pc, #104]	; (8001cc8 <main+0x6d0>)
+ 8001c5e:	f8d3 0090 	ldr.w	r0, [r3, #144]	; 0x90
+ 8001c62:	4b19      	ldr	r3, [pc, #100]	; (8001cc8 <main+0x6d0>)
+ 8001c64:	f8b3 3094 	ldrh.w	r3, [r3, #148]	; 0x94
+ 8001c68:	2201      	movs	r2, #1
+ 8001c6a:	4619      	mov	r1, r3
+ 8001c6c:	f001 ff32 	bl	8003ad4 <HAL_GPIO_WritePin>
+					RELEASE_V
+ 8001c70:	4b15      	ldr	r3, [pc, #84]	; (8001cc8 <main+0x6d0>)
+ 8001c72:	f8d3 00e8 	ldr.w	r0, [r3, #232]	; 0xe8
+ 8001c76:	4b14      	ldr	r3, [pc, #80]	; (8001cc8 <main+0x6d0>)
+ 8001c78:	f8b3 30ec 	ldrh.w	r3, [r3, #236]	; 0xec
+ 8001c7c:	2201      	movs	r2, #1
+ 8001c7e:	4619      	mov	r1, r3
+ 8001c80:	f001 ff28 	bl	8003ad4 <HAL_GPIO_WritePin>
+					CYCLE_DELAY
+ 8001c84:	204b      	movs	r0, #75	; 0x4b
+ 8001c86:	f001 f91d 	bl	8002ec4 <HAL_Delay>
 				}
 				HAL_Delay(200);
- 8001c86:	20c8      	movs	r0, #200	; 0xc8
- 8001c88:	f001 f91c 	bl	8002ec4 <HAL_Delay>
+ 8001c8a:	20c8      	movs	r0, #200	; 0xc8
+ 8001c8c:	f001 f91a 	bl	8002ec4 <HAL_Delay>
 				counter++;
- 8001c8c:	4b0f      	ldr	r3, [pc, #60]	; (8001ccc <main+0x6d4>)
- 8001c8e:	681b      	ldr	r3, [r3, #0]
- 8001c90:	3301      	adds	r3, #1
- 8001c92:	4a0e      	ldr	r2, [pc, #56]	; (8001ccc <main+0x6d4>)
- 8001c94:	6013      	str	r3, [r2, #0]
+ 8001c90:	4b0e      	ldr	r3, [pc, #56]	; (8001ccc <main+0x6d4>)
+ 8001c92:	681b      	ldr	r3, [r3, #0]
+ 8001c94:	3301      	adds	r3, #1
+ 8001c96:	4a0d      	ldr	r2, [pc, #52]	; (8001ccc <main+0x6d4>)
+ 8001c98:	6013      	str	r3, [r2, #0]
 			}
 			sprintf(tx_buffer, "Count: %lu", counter);
- 8001c96:	4b0d      	ldr	r3, [pc, #52]	; (8001ccc <main+0x6d4>)
- 8001c98:	681b      	ldr	r3, [r3, #0]
- 8001c9a:	461a      	mov	r2, r3
- 8001c9c:	490c      	ldr	r1, [pc, #48]	; (8001cd0 <main+0x6d8>)
- 8001c9e:	480d      	ldr	r0, [pc, #52]	; (8001cd4 <main+0x6dc>)
- 8001ca0:	f004 fae4 	bl	800626c <siprintf>
+ 8001c9a:	4b0c      	ldr	r3, [pc, #48]	; (8001ccc <main+0x6d4>)
+ 8001c9c:	681b      	ldr	r3, [r3, #0]
+ 8001c9e:	461a      	mov	r2, r3
+ 8001ca0:	490b      	ldr	r1, [pc, #44]	; (8001cd0 <main+0x6d8>)
+ 8001ca2:	480c      	ldr	r0, [pc, #48]	; (8001cd4 <main+0x6dc>)
+ 8001ca4:	f004 fae2 	bl	800626c <siprintf>
 			ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
- 8001ca4:	4b0b      	ldr	r3, [pc, #44]	; (8001cd4 <main+0x6dc>)
- 8001ca6:	2200      	movs	r2, #0
- 8001ca8:	2104      	movs	r1, #4
- 8001caa:	2014      	movs	r0, #20
- 8001cac:	f7ff fbaa 	bl	8001404 <ST7920_Decode_UTF8>
+ 8001ca8:	4b0a      	ldr	r3, [pc, #40]	; (8001cd4 <main+0x6dc>)
+ 8001caa:	2200      	movs	r2, #0
+ 8001cac:	2104      	movs	r1, #4
+ 8001cae:	2014      	movs	r0, #20
+ 8001cb0:	f7ff fba8 	bl	8001404 <ST7920_Decode_UTF8>
 			ST7920_Update();
- 8001cb0:	f7ff fb5c 	bl	800136c <ST7920_Update>
+ 8001cb4:	f7ff fb5a 	bl	800136c <ST7920_Update>
 		if(!Buttons[9].B_State)
- 8001cb4:	e4d2      	b.n	800165c <main+0x64>
- 8001cb6:	bf00      	nop
- 8001cb8:	20000000 	.word	0x20000000
- 8001cbc:	20000004 	.word	0x20000004
- 8001cc0:	200009e0 	.word	0x200009e0
- 8001cc4:	200008ac 	.word	0x200008ac
- 8001cc8:	20000904 	.word	0x20000904
+ 8001cb8:	e4d0      	b.n	800165c <main+0x64>
+ 8001cba:	bf00      	nop
+ 8001cbc:	20000000 	.word	0x20000000
+ 8001cc0:	20000004 	.word	0x20000004
+ 8001cc4:	200009e0 	.word	0x200009e0
+ 8001cc8:	200008ac 	.word	0x200008ac
  8001ccc:	20000800 	.word	0x20000800
  8001cd0:	08007a48 	.word	0x08007a48
  8001cd4:	20000380 	.word	0x20000380
