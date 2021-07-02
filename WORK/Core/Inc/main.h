@@ -98,6 +98,8 @@ void Error_Handler(void);
 #define Mode_GPIO_Port GPIOB
 #define Auto_Start_Pin GPIO_PIN_11
 #define Auto_Start_GPIO_Port GPIOB
+#define Dose_Pulse_Out_Pin GPIO_PIN_8
+#define Dose_Pulse_Out_GPIO_Port GPIOD
 #define Dose_Out_Pin GPIO_PIN_9
 #define Dose_Out_GPIO_Port GPIOD
 #define V_Push_Out_Pin GPIO_PIN_10

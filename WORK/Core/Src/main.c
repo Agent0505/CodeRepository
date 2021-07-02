@@ -61,7 +61,7 @@ struct Button
 #define HOLD_MOTOR 5
 #define HOLD_UNTIL 6
 
-#define STEPS 4600
+#define STEPS 14600
 #define ACCEL 800
 
 #define PULL_STEPS 1590
@@ -92,7 +92,7 @@ char tmpflg = 0;
 
 static bool flag = false;
 
-#define BUTTONS_COUNT 16
+#define BUTTONS_COUNT 17
 struct Button Buttons[BUTTONS_COUNT];
 static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)V_Push_V_Weld_GPIO_Port, V_Push_V_Weld_Pin, 0, 0, PRESS, 0},															// 0Macros
@@ -110,7 +110,8 @@ static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)HOLD_Pull_GPIO_Port, HOLD_Pull_Pin, (uint32_t)Pull_Out_GPIO_Port, Pull_Out_Pin, HOLD_MOTOR, 2580},					// 12HOLD_Pull motor
 		{(uint32_t)Reed_Switch_GPIO_Port, Reed_Switch_Pin, (uint32_t)0, 0, 200, 2580},													// 13Reed Switch feedback
 		{(uint32_t)CounterReset_GPIO_Port, CounterReset_Pin, (uint32_t)0, 0, 0, 0},														// 14Counter reset
-		{(uint32_t)Size_Select_GPIO_Port, Size_Select_Pin, (uint32_t)0, 0, 0, 0}														// 15Pocket size select
+		{(uint32_t)Size_Select_GPIO_Port, Size_Select_Pin, (uint32_t)0, 0, 0, 0},														// 15Pocket size select
+		{(uint32_t)Dose_GPIO_Port, Dose_Pin, (uint32_t)Dose_Pulse_Out_GPIO_Port, Dose_Pulse_Out_Pin, __DELAY, 100},						// 16Pulse out for dose machine
 };
 /* USER CODE END PV */
 
@@ -186,10 +187,10 @@ int main(void)
 	while(1)
 	{
 
-		if(!Buttons[9].B_State)
+		if(!Buttons[9].B_State)// Mode select
 		{
 			tmpflg = 1;
-			if(Buttons[9].B_Out == 1)
+			if(Buttons[9].B_Out == 1) // Reset buttons and timers
 			{
 				HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 				Buttons[9].B_Out = 0;
@@ -266,17 +267,17 @@ int main(void)
 			//AUTO MODE
 			#define PUSH_V HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
 			#define PUSH_H HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
-			#define RELEASE_H HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1); //Release
-			#define RELEASE_V HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1); //Release
+			#define RELEASE_V HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1); //Release
+			#define RELEASE_H HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 1); //Release
 			#define CUT_START HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 0); // CUT
 			#define CUT_RELEASE HAL_GPIO_WritePin(Buttons[8].GPIO_Out, Buttons[8].GPIO_Pin_Out, 1); //Release
-			#define WELD_H_START HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 0); // Weld
-			#define WELD_V_START HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0); // Weld
-			#define WELD_H_STOP HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 1);
-			#define WELD_V_STOP HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
+			#define WELD_V_START HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 0); // Weld
+			#define WELD_H_START HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0); // Weld
+			#define WELD_V_STOP HAL_GPIO_WritePin(Buttons[4].GPIO_Out, Buttons[4].GPIO_Pin_Out, 1);
+			#define WELD_H_STOP HAL_GPIO_WritePin(Buttons[6].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
 			#define PULL TimerMotor(&Buttons[7]); // PULL mat.
 			#define DOSE TimerMotor(&Buttons[2]); // Dose
-			#define CYCLE_DELAY HAL_Delay(75);
+			#define CYCLE_DELAY HAL_Delay(100);
 			#define WELD_TIME HAL_Delay(300);
 			if(Buttons[10].B_Out) // AUTO MODE START
 			{
@@ -285,6 +286,8 @@ int main(void)
 				{
 					Pullsteps = PULL_STEPS / 2;
 					Dosesteps = STEPS;
+
+
 					//Pull new material
 					PULL
 
@@ -292,9 +295,11 @@ int main(void)
 					//Clamp material
 					PUSH_H
 					PUSH_V
+					CUT_START
 
 					CYCLE_DELAY
 					//Welding stage 1
+					CUT_RELEASE
 					WELD_H_START
 					WELD_V_START
 					WELD_TIME
@@ -316,19 +321,78 @@ int main(void)
 					WELD_V_START
 					WELD_TIME
 					WELD_V_STOP
-					CUT_START
+
 					CYCLE_DELAY
 					//Cut, fill, release
-					CUT_RELEASE
+
 					DOSE
 					RELEASE_V
 
 					CYCLE_DELAY
+
 				}
 				else
 				{
 					Pullsteps = PULL_STEPS / 2;
 					Dosesteps = STEPS / 2;
+					//Pull new material
+					PULL
+
+					CYCLE_DELAY
+					//Clamp material
+					PUSH_H
+					PUSH_V
+					CUT_START
+
+					CYCLE_DELAY
+					//Welding stage 1
+					CUT_RELEASE
+					WELD_H_START
+					WELD_V_START
+					WELD_TIME
+					WELD_H_STOP
+					WELD_V_STOP
+					RELEASE_H
+					RELEASE_V
+
+					CYCLE_DELAY
+					//Pull stage 2
+					DOSE
+					PULL
+
+					CYCLE_DELAY
+					//Clamp material
+					PUSH_V
+					PUSH_H
+
+					CYCLE_DELAY
+					//Welding stage 2
+					WELD_V_START
+					WELD_H_START
+					WELD_TIME
+					WELD_V_STOP
+					WELD_H_STOP
+
+					CYCLE_DELAY
+					//Cut, fill, release
+
+					DOSE
+					RELEASE_V
+					RELEASE_H
+
+					CYCLE_DELAY
+					/*
+					PULL
+					CYCLE_DELAY
+					PUSH_H
+					PUSH_V
+					CYCLE_DELAY
+					WELD_H_START
+					WELD_V_START
+					WELD_TIME
+					WELD_H_STOP
+					WELD_V_STOP
+					DOSE
 					PULL
 					CYCLE_DELAY
 					PUSH_H
@@ -346,6 +410,7 @@ int main(void)
 					RELEASE_H
 					RELEASE_V
 					CYCLE_DELAY
+					*/
 				}
 				HAL_Delay(200);
 				counter++;
@@ -618,8 +683,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, Led_1_Pin|Led_2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin|H_Push_Out_Pin 
-                          |H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, Dose_Pulse_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin 
+                          |H_Push_Out_Pin|H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(RST_GPIO_Port, RST_Pin, GPIO_PIN_RESET);
@@ -661,6 +726,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Dose_Pulse_Out_Pin */
+  GPIO_InitStruct.Pin = Dose_Pulse_Out_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(Dose_Pulse_Out_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Dose_Out_Pin V_Push_Out_Pin V_Weld_Out_Pin H_Push_Out_Pin 
                            H_Weld_Out_Pin Pull_Out_Pin Cut_Out_Pin */
@@ -741,6 +813,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			{
 				HAL_GPIO_WritePin(Buttons[i].GPIO_Out, Buttons[i].GPIO_Pin_Out, 1);
 			}
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			HAL_TIM_Base_Stop_IT(&htim7);
 			Delay(4800000);
 			while(HAL_GPIO_ReadPin(STOP_GPIO_Port, STOP_Pin) == 0){asm("NOP");};
@@ -748,20 +821,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		}
 		for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
 		{
-			if((Buttons[i].addiction->B_Out == 1 && Buttons[i].Mode == __DELAY) || Buttons[i].addiction == 0 || Buttons[i].Mode != __DELAY)
+			if((Buttons[i].addiction->B_Out == 1 && Buttons[i].Mode == __DELAY && Buttons[i].addiction != 0) || Buttons[i].addiction == 0 || Buttons[i].Mode != __DELAY)
 				Buttons[i].call_function(&Buttons[i]);
 		}
-
+		if(Buttons[10].B_Out)
+		{
+			HoldPrepareMotorUntill(Buttons[1].addiction, 1);
+		}
 		if(Buttons[14].B_Out && counter > 0)
 		{
 			Buttons[14].B_Out = 0;
 			counter = 0;
 			ST7920_Clean();
 		}
-		if(Buttons[10].B_Out)
-		{
-			HoldPrepareMotorUntill(Buttons[1].addiction, 1);
-		}
+
 	}
 	if (htim->Instance==TIM6)
 	{
@@ -826,7 +899,7 @@ void macros1(struct Button *button)
 void HoldMotor(struct Button *Button, uint8_t mode)
 {
 
-	uint16_t Limitation = 10000;
+	uint16_t Limitation = 100000;
 	uint16_t temp = 0;
 	for(uint32_t j = 0; j < 10; j++)
 	{
