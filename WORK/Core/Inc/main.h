@@ -60,6 +60,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define OUT_B_Pin GPIO_PIN_2
+#define OUT_B_GPIO_Port GPIOE
 #define Button_2_Pin GPIO_PIN_3
 #define Button_2_GPIO_Port GPIOE
 #define Button_1_Pin GPIO_PIN_4
@@ -122,6 +124,8 @@ void Error_Handler(void);
 #define STOP_GPIO_Port GPIOD
 #define RST_Pin GPIO_PIN_7
 #define RST_GPIO_Port GPIOB
+#define OUT_A_Pin GPIO_PIN_0
+#define OUT_A_GPIO_Port GPIOE
 #define HOLD_Pull_Pin GPIO_PIN_1
 #define HOLD_Pull_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */

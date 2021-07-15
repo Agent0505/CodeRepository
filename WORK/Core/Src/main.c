@@ -61,7 +61,7 @@ struct Button
 #define HOLD_MOTOR 5
 #define HOLD_UNTIL 6
 
-#define STEPS 14600
+#define STEPS 12000
 #define ACCEL 800
 
 #define PULL_STEPS 1590
@@ -81,6 +81,11 @@ TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN PV */
+
+// Переменные для работы счётчика (принцип энкодера)
+
+uint8_t OutSignals[][2] = {{0,0},{1,0},{1,1},{0,1},{99,99}};
+uint8_t *pOutSig = OutSignals[0];
 
 extern char tx_buffer[128]; //Буфер для отправки текста на дисплей
 extern uint8_t Frame_buffer[1024]; //Буфер кадра
@@ -174,7 +179,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   GPIOD->ODR = ~0;
   Init();
-  HAL_Delay(700);
+  HAL_Delay(2300);
   ST7920_Clean();
   sprintf(tx_buffer, "Count: %lu", counter);
   ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
@@ -265,6 +270,8 @@ int main(void)
 				Buttons[10].B_Out = 0;
 			}
 			//AUTO MODE
+			#define DOSE_PULSE_START HAL_GPIO_WritePin(Buttons[16].GPIO_Out, Buttons[16].GPIO_Pin_Out, 0); // Pulse out when dose
+			#define DOSE_PULSE_STOP HAL_GPIO_WritePin(Buttons[16].GPIO_Out, Buttons[16].GPIO_Pin_Out, 1); // Pulse out when dose
 			#define PUSH_V HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 0); // Push
 			#define PUSH_H HAL_GPIO_WritePin(Buttons[5].GPIO_Out, Buttons[5].GPIO_Pin_Out, 0); // Push
 			#define RELEASE_V HAL_GPIO_WritePin(Buttons[3].GPIO_Out, Buttons[3].GPIO_Pin_Out, 1); //Release
@@ -281,90 +288,79 @@ int main(void)
 			#define WELD_TIME HAL_Delay(300);
 			if(Buttons[10].B_Out) // AUTO MODE START
 			{
-
 				if(Buttons[15].B_State == 1)
 				{
 					Pullsteps = PULL_STEPS / 2;
 					Dosesteps = STEPS;
-
-
 					//Pull new material
 					PULL
-
 					CYCLE_DELAY
-					//Clamp material
+					//Clamp material 1, cut pocket
 					PUSH_H
 					PUSH_V
 					CUT_START
-
 					CYCLE_DELAY
-					//Welding stage 1
 					CUT_RELEASE
+					//Welding stage 1
 					WELD_H_START
 					WELD_V_START
 					WELD_TIME
 					WELD_H_STOP
 					WELD_V_STOP
+					//Release
 					RELEASE_H
 					RELEASE_V
-
 					CYCLE_DELAY
 					//Pull stage 2
 					PULL
-
 					CYCLE_DELAY
-					//Clamp material
+					//Clamp material 2
 					PUSH_V
-
 					CYCLE_DELAY
 					//Welding stage 2
 					WELD_V_START
 					WELD_TIME
 					WELD_V_STOP
-
+					//Fill, release
+					DOSE_PULSE_START
 					CYCLE_DELAY
-					//Cut, fill, release
-
+					DOSE_PULSE_STOP
 					DOSE
 					RELEASE_V
-
 					CYCLE_DELAY
-
 				}
 				else
 				{
 					Pullsteps = PULL_STEPS / 2;
-					Dosesteps = STEPS / 2;
+					Dosesteps = STEPS;
 					//Pull new material
 					PULL
-
 					CYCLE_DELAY
-					//Clamp material
+					//Clamp material 1, cut pocket
 					PUSH_H
 					PUSH_V
 					CUT_START
-
 					CYCLE_DELAY
-					//Welding stage 1
 					CUT_RELEASE
+					//Welding stage 1
 					WELD_H_START
 					WELD_V_START
 					WELD_TIME
 					WELD_H_STOP
 					WELD_V_STOP
+					//Release, fill 1
 					RELEASE_H
 					RELEASE_V
-
+					DOSE_PULSE_START
 					CYCLE_DELAY
-					//Pull stage 2
+					DOSE_PULSE_STOP
 					DOSE
+					//Pull stage 2
 					PULL
-
 					CYCLE_DELAY
-					//Clamp material
+					//Clamp material 2
 					PUSH_V
 					PUSH_H
-
 					CYCLE_DELAY
 					//Welding stage 2
 					WELD_V_START
@@ -372,14 +368,13 @@ int main(void)
 					WELD_TIME
 					WELD_V_STOP
 					WELD_H_STOP
-
-					CYCLE_DELAY
-					//Cut, fill, release
-
-					DOSE
+					//Release, fill 2
 					RELEASE_V
 					RELEASE_H
-
+					DOSE_PULSE_START
+					CYCLE_DELAY
+					DOSE_PULSE_STOP
+					DOSE
 					CYCLE_DELAY
 					/*
 					PULL
@@ -412,7 +407,14 @@ int main(void)
 					CYCLE_DELAY
 					*/
 				}
+				pOutSig ++;
 				HAL_Delay(200);
+				if(pOutSig[0] == 99)
+					pOutSig = OutSignals[0];
+				HAL_GPIO_WritePin(OUT_A_GPIO_Port, OUT_A_Pin, pOutSig[0]);
+				HAL_GPIO_WritePin(OUT_B_GPIO_Port, OUT_B_Pin, pOutSig[1]);
+
+
 				counter++;
 			}
 			else if(flag == true)
@@ -677,7 +679,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, OUT_B_Pin|CS_Pin|OUT_A_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, Led_1_Pin|Led_2_Pin, GPIO_PIN_RESET);
@@ -688,6 +690,13 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(RST_GPIO_Port, RST_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : OUT_B_Pin CS_Pin OUT_A_Pin */
+  GPIO_InitStruct.Pin = OUT_B_Pin|CS_Pin|OUT_A_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Button_2_Pin Button_1_Pin CounterReset_Pin V_Push_V_Weld_Pin 
                            Prepare_material_Pin Dose_Pin V_Push_Pin V_Weld_Pin 
@@ -700,13 +709,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : CS_Pin */
-  GPIO_InitStruct.Pin = CS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(CS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : HOLD_Dose_Pin Size_Select_Pin */
   GPIO_InitStruct.Pin = HOLD_Dose_Pin|Size_Select_Pin;
@@ -727,17 +729,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : Dose_Pulse_Out_Pin */
-  GPIO_InitStruct.Pin = Dose_Pulse_Out_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(Dose_Pulse_Out_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : Dose_Out_Pin V_Push_Out_Pin V_Weld_Out_Pin H_Push_Out_Pin 
-                           H_Weld_Out_Pin Pull_Out_Pin Cut_Out_Pin */
-  GPIO_InitStruct.Pin = Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin|H_Push_Out_Pin 
-                          |H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin;
+  /*Configure GPIO pins : Dose_Pulse_Out_Pin Dose_Out_Pin V_Push_Out_Pin V_Weld_Out_Pin 
+                           H_Push_Out_Pin H_Weld_Out_Pin Pull_Out_Pin Cut_Out_Pin */
+  GPIO_InitStruct.Pin = Dose_Pulse_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin 
+                          |H_Push_Out_Pin|H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -824,7 +819,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if((Buttons[i].addiction->B_Out == 1 && Buttons[i].Mode == __DELAY && Buttons[i].addiction != 0) || Buttons[i].addiction == 0 || Buttons[i].Mode != __DELAY)
 				Buttons[i].call_function(&Buttons[i]);
 		}
-		if(Buttons[10].B_Out)
+		if(flag == true || Buttons[10].B_Out == 1)
 		{
 			HoldPrepareMotorUntill(Buttons[1].addiction, 1);
 		}
@@ -899,7 +894,7 @@ void macros1(struct Button *button)
 void HoldMotor(struct Button *Button, uint8_t mode)
 {
 
-	uint16_t Limitation = 100000;
+	uint32_t Limitation = 100000;
 	uint16_t temp = 0;
 	for(uint32_t j = 0; j < 10; j++)
 	{
