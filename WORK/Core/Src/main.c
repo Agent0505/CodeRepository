@@ -84,7 +84,7 @@ TIM_HandleTypeDef htim7;
 
 // Переменные для работы счётчика (принцип энкодера)
 
-uint8_t OutSignals[][2] = {{0,0},{1,0},{1,1},{0,1},{99,99}};
+uint8_t OutSignals[][2] = {{0,0},{1,0},{1,1},{0,1}};
 uint8_t *pOutSig = OutSignals[0];
 
 extern char tx_buffer[128]; //Буфер для отправки текста на дисплей
@@ -96,7 +96,7 @@ uint32_t counter = 0, count_prev = 0;
 char tmpflg = 0;
 
 static bool flag = false;
-
+#define WELD_DELAY 600
 #define BUTTONS_COUNT 17
 struct Button Buttons[BUTTONS_COUNT];
 static uint32_t Defines[BUTTONS_COUNT][6] = {
@@ -104,9 +104,9 @@ static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)Prepare_material_GPIO_Port, Prepare_material_Pin, (uint32_t)0, 0, HOLD_UNTIL, 12000},								// 1Prepare material from bobbin
 		{(uint32_t)Dose_GPIO_Port, Dose_Pin, (uint32_t)Dose_Out_GPIO_Port, Dose_Out_Pin, TIMER, 2580},									// 2Dose motor control
 		{(uint32_t)V_Push_GPIO_Port, V_Push_Pin, (uint32_t)V_Push_Out_GPIO_Port, V_Push_Out_Pin, TOGGLE, 0},							// 3Vertical cylinder push
-		{(uint32_t)V_Weld_GPIO_Port, V_Weld_Pin, (uint32_t)V_Weld_Out_GPIO_Port, V_Weld_Out_Pin, __DELAY, 300},							// 4Vertical Weld spot
+		{(uint32_t)V_Weld_GPIO_Port, V_Weld_Pin, (uint32_t)V_Weld_Out_GPIO_Port, V_Weld_Out_Pin, __DELAY, WELD_DELAY},					// 4Vertical Weld spot
 		{(uint32_t)H_Push_GPIO_Port, H_Push_Pin, (uint32_t)H_Push_Out_GPIO_Port, H_Push_Out_Pin, TOGGLE, 0},							// 5Horizontal cylinder push
-		{(uint32_t)H_Weld_GPIO_Port, H_Weld_Pin, (uint32_t)H_Weld_Out_GPIO_Port, H_Weld_Out_Pin, __DELAY, 300},							// 6Horizontal Weld spot
+		{(uint32_t)H_Weld_GPIO_Port, H_Weld_Pin, (uint32_t)H_Weld_Out_GPIO_Port, H_Weld_Out_Pin, __DELAY, WELD_DELAY},					// 6Horizontal Weld spot
 		{(uint32_t)Pull_GPIO_Port, Pull_Pin, (uint32_t)Pull_Out_GPIO_Port, Pull_Out_Pin, TIMER, 2600},									// 7Pull material down
 		{(uint32_t)Cut_GPIO_Port, Cut_Pin, (uint32_t)Cut_Out_GPIO_Port, Cut_Out_Pin, HOLD, 0},											// 8Cutter
 		{(uint32_t)Mode_GPIO_Port, Mode_Pin, 0, 0, HOLD, 0},																			// 9Mode select
@@ -185,6 +185,8 @@ int main(void)
   ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
   HAL_TIM_Base_Start_IT(&htim7);
   HAL_TIM_Base_Start_IT(&htim6);
+  HAL_GPIO_WritePin(OUT_A_GPIO_Port, OUT_A_Pin, 1);
+  HAL_GPIO_WritePin(OUT_B_GPIO_Port, OUT_B_Pin, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -285,7 +287,7 @@ int main(void)
 			#define PULL TimerMotor(&Buttons[7]); // PULL mat.
 			#define DOSE TimerMotor(&Buttons[2]); // Dose
 			#define CYCLE_DELAY HAL_Delay(100);
-			#define WELD_TIME HAL_Delay(300);
+			#define WELD_TIME HAL_Delay(600);
 			if(Buttons[10].B_Out) // AUTO MODE START
 			{
 				if(Buttons[15].B_State == 1)
@@ -407,12 +409,18 @@ int main(void)
 					CYCLE_DELAY
 					*/
 				}
-				pOutSig ++;
+				static uint8_t mem = 0;
+				pOutSig++;
+				pOutSig++;
+				mem++;
 				HAL_Delay(200);
-				if(pOutSig[0] == 99)
+				if(mem > 3)
+				{
 					pOutSig = OutSignals[0];
-				HAL_GPIO_WritePin(OUT_A_GPIO_Port, OUT_A_Pin, pOutSig[0]);
-				HAL_GPIO_WritePin(OUT_B_GPIO_Port, OUT_B_Pin, pOutSig[1]);
+					mem = 0;
+				}
+				HAL_GPIO_WritePin(OUT_A_GPIO_Port, OUT_A_Pin, !pOutSig[0]);
+				HAL_GPIO_WritePin(OUT_B_GPIO_Port, OUT_B_Pin, !pOutSig[1]);
 
 
 				counter++;
@@ -691,10 +699,10 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(RST_GPIO_Port, RST_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : OUT_B_Pin CS_Pin OUT_A_Pin */
-  GPIO_InitStruct.Pin = OUT_B_Pin|CS_Pin|OUT_A_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  /*Configure GPIO pins : OUT_B_Pin OUT_A_Pin */
+  GPIO_InitStruct.Pin = OUT_B_Pin|OUT_A_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
@@ -709,6 +717,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : CS_Pin */
+  GPIO_InitStruct.Pin = CS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(CS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : HOLD_Dose_Pin Size_Select_Pin */
   GPIO_InitStruct.Pin = HOLD_Dose_Pin|Size_Select_Pin;
@@ -814,6 +829,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			while(HAL_GPIO_ReadPin(STOP_GPIO_Port, STOP_Pin) == 0){asm("NOP");};
 			HAL_NVIC_SystemReset();
 		}
+
 		for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
 		{
 			if((Buttons[i].addiction->B_Out == 1 && Buttons[i].Mode == __DELAY && Buttons[i].addiction != 0) || Buttons[i].addiction == 0 || Buttons[i].Mode != __DELAY)
@@ -822,6 +838,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(flag == true || Buttons[10].B_Out == 1)
 		{
 			HoldPrepareMotorUntill(Buttons[1].addiction, 1);
+		}
+		if((flag == true && Buttons[10].B_Out == 0) || Buttons[9].B_State == 0)
+		{
+			flag = false;
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 		}
 		if(Buttons[14].B_Out && counter > 0)
 		{
