@@ -97,7 +97,7 @@ char tmpflg = 0;
 
 static bool flag = false;
 #define WELD_DELAY 600
-#define BUTTONS_COUNT 17
+#define BUTTONS_COUNT 18
 struct Button Buttons[BUTTONS_COUNT];
 static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)V_Push_V_Weld_GPIO_Port, V_Push_V_Weld_Pin, 0, 0, PRESS, 0},															// 0Macros
@@ -117,6 +117,7 @@ static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)CounterReset_GPIO_Port, CounterReset_Pin, (uint32_t)0, 0, 0, 0},														// 14Counter reset
 		{(uint32_t)Size_Select_GPIO_Port, Size_Select_Pin, (uint32_t)0, 0, 0, 0},														// 15Pocket size select
 		{(uint32_t)Dose_GPIO_Port, Dose_Pin, (uint32_t)Dose_Pulse_Out_GPIO_Port, Dose_Pulse_Out_Pin, __DELAY, 100},						// 16Pulse out for dose machine
+		{(uint32_t)Dose_Ready_GPIO_Port, Dose_Ready_Pin, (uint32_t)0, 0, 0, 0}															// 17Dose feedback signal (When ready)
 };
 /* USER CODE END PV */
 
@@ -288,6 +289,7 @@ int main(void)
 			#define DOSE TimerMotor(&Buttons[2]); // Dose
 			#define CYCLE_DELAY HAL_Delay(100);
 			#define WELD_TIME HAL_Delay(600);
+			#define WAIT_DOSE_READY while(Buttons[17].B_Out){asm("NOP");if(!Buttons[10].B_Out){break;};if(Buttons[17].B_Out && !Buttons[17].B_State){break;}} Buttons[17].B_Out = 1;
 			if(Buttons[10].B_Out) // AUTO MODE START
 			{
 				if(Buttons[15].B_State == 1)
@@ -324,10 +326,11 @@ int main(void)
 					WELD_TIME
 					WELD_V_STOP
 					//Fill, release
+					WAIT_DOSE_READY
 					DOSE_PULSE_START
 					CYCLE_DELAY
 					DOSE_PULSE_STOP
-					DOSE
+					//DOSE
 					RELEASE_V
 					CYCLE_DELAY
 				}
@@ -353,10 +356,11 @@ int main(void)
 					//Release, fill 1
 					RELEASE_H
 					RELEASE_V
+					WAIT_DOSE_READY
 					DOSE_PULSE_START
 					CYCLE_DELAY
 					DOSE_PULSE_STOP
-					DOSE
+					//DOSE
 					//Pull stage 2
 					PULL
 					CYCLE_DELAY
@@ -373,10 +377,11 @@ int main(void)
 					//Release, fill 2
 					RELEASE_V
 					RELEASE_H
+					WAIT_DOSE_READY
 					DOSE_PULSE_START
 					CYCLE_DELAY
 					DOSE_PULSE_STOP
-					DOSE
+					//DOSE
 					CYCLE_DELAY
 					/*
 					PULL
@@ -737,6 +742,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Dose_Ready_Pin */
+  GPIO_InitStruct.Pin = Dose_Ready_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(Dose_Ready_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Mode_Pin Auto_Start_Pin */
   GPIO_InitStruct.Pin = Mode_Pin|Auto_Start_Pin;

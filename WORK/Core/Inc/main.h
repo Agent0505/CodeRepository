@@ -78,6 +78,8 @@ void Error_Handler(void);
 #define Led_1_GPIO_Port GPIOA
 #define Led_2_Pin GPIO_PIN_7
 #define Led_2_GPIO_Port GPIOA
+#define Dose_Ready_Pin GPIO_PIN_4
+#define Dose_Ready_GPIO_Port GPIOC
 #define V_Push_V_Weld_Pin GPIO_PIN_7
 #define V_Push_V_Weld_GPIO_Port GPIOE
 #define Prepare_material_Pin GPIO_PIN_8
