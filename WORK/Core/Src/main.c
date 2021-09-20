@@ -323,7 +323,9 @@ int main(void)
 					{
 						Buttons[10].B_State = 0;
 						uint32_t delay = 200;
-						while(!Buttons[10].B_State)
+						WELD_H_STOP
+						WELD_V_STOP
+						while(!Buttons[10].B_State && !Buttons[18].B_Out)
 						{
 							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
 							HAL_Delay(delay);
@@ -333,6 +335,8 @@ int main(void)
 						break;
 					};
 				};
+				WELD_H_START
+				WELD_V_START
 			}
 			#define WELD_CHECK Welder_Check();
 
