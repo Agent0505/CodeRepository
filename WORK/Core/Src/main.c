@@ -64,7 +64,7 @@ struct Button
 #define STEPS 12000
 #define ACCEL 800
 
-#define PULL_STEPS 1590
+#define PULL_STEPS 1720
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -97,7 +97,7 @@ char tmpflg = 0;
 
 static bool flag = false;
 #define WELD_DELAY 600
-#define BUTTONS_COUNT 18
+#define BUTTONS_COUNT 20
 struct Button Buttons[BUTTONS_COUNT];
 static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)V_Push_V_Weld_GPIO_Port, V_Push_V_Weld_Pin, 0, 0, PRESS, 0},															// 0Macros
@@ -117,7 +117,9 @@ static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)CounterReset_GPIO_Port, CounterReset_Pin, (uint32_t)0, 0, 0, 0},														// 14Counter reset
 		{(uint32_t)Size_Select_GPIO_Port, Size_Select_Pin, (uint32_t)0, 0, 0, 0},														// 15Pocket size select
 		{(uint32_t)Dose_GPIO_Port, Dose_Pin, (uint32_t)Dose_Pulse_Out_GPIO_Port, Dose_Pulse_Out_Pin, __DELAY, 100},						// 16Pulse out for dose machine
-		{(uint32_t)Dose_Ready_GPIO_Port, Dose_Ready_Pin, (uint32_t)0, 0, 0, 0}															// 17Dose feedback signal (When ready)
+		{(uint32_t)Dose_Ready_GPIO_Port, Dose_Ready_Pin, (uint32_t)0, 0, 0, 0},															// 17Dose feedback signal (When ready)
+		{(uint32_t)Weld_Feedback_GPIO_Port, Weld_Feedback_Pin, (uint32_t)0, 0, 0, 0},													// 18Weld feedback (Check welder error)
+		{(uint32_t)0, 0, (uint32_t)Buzzer_GPIO_Port, Buzzer_Pin, 0, 0}																	// 19Buzzer
 };
 /* USER CODE END PV */
 
@@ -178,12 +180,15 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
+  //Reset output pins
   GPIOD->ODR = ~0;
   Init();
   HAL_Delay(2300);
+  //Engage spi display
   ST7920_Clean();
   sprintf(tx_buffer, "Count: %lu", counter);
   ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
+  //Engage timers ( buttons check, etc. )
   HAL_TIM_Base_Start_IT(&htim7);
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_GPIO_WritePin(OUT_A_GPIO_Port, OUT_A_Pin, 1);
@@ -271,6 +276,7 @@ int main(void)
 			{
 				tmpflg = 0;
 				Buttons[10].B_Out = 0;
+				Buttons[17].B_Out = 0;
 			}
 			//AUTO MODE
 			#define DOSE_PULSE_START HAL_GPIO_WritePin(Buttons[16].GPIO_Out, Buttons[16].GPIO_Pin_Out, 0); // Pulse out when dose
@@ -289,7 +295,47 @@ int main(void)
 			#define DOSE TimerMotor(&Buttons[2]); // Dose
 			#define CYCLE_DELAY HAL_Delay(100);
 			#define WELD_TIME HAL_Delay(600);
-			#define WAIT_DOSE_READY while(Buttons[17].B_Out){asm("NOP");if(!Buttons[10].B_Out){break;};if(Buttons[17].B_Out && !Buttons[17].B_State){break;}} Buttons[17].B_Out = 1;
+			#define WAITING 450
+			void WaitDoseReady(void)
+			{
+				while(Buttons[17].B_Out)
+				{
+					asm("NOP");
+					if(!Buttons[10].B_Out || !Buttons[9].B_State)
+					{
+						break;
+					};
+					/*if(Buttons[17].B_Out && !Buttons[17].B_State)
+					{
+						break;
+					}
+					*/
+				};
+				Buttons[17].B_Out = 1;
+			};
+			#define WAIT_DOSE_READY WaitDoseReady();
+			void Welder_Check(void)
+			{
+				uint32_t timer = 12000000;
+				while(!Buttons[18].B_Out && timer--)
+				{
+					if(!timer)
+					{
+						Buttons[10].B_State = 0;
+						uint32_t delay = 200;
+						while(!Buttons[10].B_State)
+						{
+							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
+							HAL_Delay(delay);
+							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0);
+							HAL_Delay(delay);
+						};
+						break;
+					};
+				};
+			}
+			#define WELD_CHECK Welder_Check();
+
 			if(Buttons[10].B_Out) // AUTO MODE START
 			{
 				if(Buttons[15].B_State == 1)
@@ -308,6 +354,7 @@ int main(void)
 					//Welding stage 1
 					WELD_H_START
 					WELD_V_START
+					WELD_CHECK
 					WELD_TIME
 					WELD_H_STOP
 					WELD_V_STOP
@@ -323,13 +370,16 @@ int main(void)
 					CYCLE_DELAY
 					//Welding stage 2
 					WELD_V_START
+					WELD_CHECK
 					WELD_TIME
 					WELD_V_STOP
 					//Fill, release
 					WAIT_DOSE_READY
+
 					DOSE_PULSE_START
 					CYCLE_DELAY
 					DOSE_PULSE_STOP
+					HAL_Delay(WAITING); // TEST
 					//DOSE
 					RELEASE_V
 					CYCLE_DELAY
@@ -350,6 +400,7 @@ int main(void)
 					//Welding stage 1
 					WELD_H_START
 					WELD_V_START
+					WELD_CHECK
 					WELD_TIME
 					WELD_H_STOP
 					WELD_V_STOP
@@ -360,6 +411,9 @@ int main(void)
 					DOSE_PULSE_START
 					CYCLE_DELAY
 					DOSE_PULSE_STOP
+					CYCLE_DELAY
+					HAL_Delay(WAITING); // TEST
+					CYCLE_DELAY
 					//DOSE
 					//Pull stage 2
 					PULL
@@ -371,6 +425,7 @@ int main(void)
 					//Welding stage 2
 					WELD_V_START
 					WELD_H_START
+					WELD_CHECK
 					WELD_TIME
 					WELD_V_STOP
 					WELD_H_STOP
@@ -382,6 +437,8 @@ int main(void)
 					CYCLE_DELAY
 					DOSE_PULSE_STOP
 					//DOSE
+					CYCLE_DELAY
+					HAL_Delay(WAITING); // TEST
 					CYCLE_DELAY
 					/*
 					PULL
@@ -414,6 +471,7 @@ int main(void)
 					CYCLE_DELAY
 					*/
 				}
+				// Section for quadrature counter
 				static uint8_t mem = 0;
 				pOutSig++;
 				pOutSig++;
@@ -426,15 +484,16 @@ int main(void)
 				}
 				HAL_GPIO_WritePin(OUT_A_GPIO_Port, OUT_A_Pin, !pOutSig[0]);
 				HAL_GPIO_WritePin(OUT_B_GPIO_Port, OUT_B_Pin, !pOutSig[1]);
+				//End
 
-
-				counter++;
+				counter++; // Ammount of packages done
 			}
 			else if(flag == true)
 			{
 				flag = false;
 				HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			}
+			//Spi 128x64 screen
 			sprintf(tx_buffer, "Count: %lu", counter);
 			ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
 			ST7920_Update();
@@ -698,6 +757,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, Led_1_Pin|Led_2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, Dose_Pulse_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin 
                           |H_Push_Out_Pin|H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin, GPIO_PIN_RESET);
 
@@ -730,8 +792,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(CS_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : HOLD_Dose_Pin Size_Select_Pin */
-  GPIO_InitStruct.Pin = HOLD_Dose_Pin|Size_Select_Pin;
+  /*Configure GPIO pins : HOLD_Dose_Pin Weld_Feedback_Pin Size_Select_Pin */
+  GPIO_InitStruct.Pin = HOLD_Dose_Pin|Weld_Feedback_Pin|Size_Select_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -748,6 +810,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(Dose_Ready_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Buzzer_Pin */
+  GPIO_InitStruct.Pin = Buzzer_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(Buzzer_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Mode_Pin Auto_Start_Pin */
   GPIO_InitStruct.Pin = Mode_Pin|Auto_Start_Pin;

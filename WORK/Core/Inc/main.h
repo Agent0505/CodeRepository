@@ -72,6 +72,8 @@ void Error_Handler(void);
 #define CounterReset_GPIO_Port GPIOE
 #define HOLD_Dose_Pin GPIO_PIN_13
 #define HOLD_Dose_GPIO_Port GPIOC
+#define Weld_Feedback_Pin GPIO_PIN_0
+#define Weld_Feedback_GPIO_Port GPIOC
 #define Size_Select_Pin GPIO_PIN_1
 #define Size_Select_GPIO_Port GPIOC
 #define Led_1_Pin GPIO_PIN_6
@@ -80,6 +82,8 @@ void Error_Handler(void);
 #define Led_2_GPIO_Port GPIOA
 #define Dose_Ready_Pin GPIO_PIN_4
 #define Dose_Ready_GPIO_Port GPIOC
+#define Buzzer_Pin GPIO_PIN_5
+#define Buzzer_GPIO_Port GPIOC
 #define V_Push_V_Weld_Pin GPIO_PIN_7
 #define V_Push_V_Weld_GPIO_Port GPIOE
 #define Prepare_material_Pin GPIO_PIN_8
