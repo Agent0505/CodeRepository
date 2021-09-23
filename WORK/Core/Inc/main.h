@@ -84,6 +84,8 @@ void Error_Handler(void);
 #define Dose_Ready_GPIO_Port GPIOC
 #define Buzzer_Pin GPIO_PIN_5
 #define Buzzer_GPIO_Port GPIOC
+#define Weld_Feedback2_Pin GPIO_PIN_2
+#define Weld_Feedback2_GPIO_Port GPIOB
 #define V_Push_V_Weld_Pin GPIO_PIN_7
 #define V_Push_V_Weld_GPIO_Port GPIOE
 #define Prepare_material_Pin GPIO_PIN_8

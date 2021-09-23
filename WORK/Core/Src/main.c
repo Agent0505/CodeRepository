@@ -73,11 +73,7 @@ struct Button
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi2;
-DMA_HandleTypeDef hdma_spi2_tx;
-
 TIM_HandleTypeDef htim3;
-TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN PV */
@@ -97,7 +93,7 @@ char tmpflg = 0;
 
 static bool flag = false;
 #define WELD_DELAY 600
-#define BUTTONS_COUNT 20
+#define BUTTONS_COUNT 21
 struct Button Buttons[BUTTONS_COUNT];
 static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)V_Push_V_Weld_GPIO_Port, V_Push_V_Weld_Pin, 0, 0, PRESS, 0},															// 0Macros
@@ -119,18 +115,16 @@ static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)Dose_GPIO_Port, Dose_Pin, (uint32_t)Dose_Pulse_Out_GPIO_Port, Dose_Pulse_Out_Pin, __DELAY, 100},						// 16Pulse out for dose machine
 		{(uint32_t)Dose_Ready_GPIO_Port, Dose_Ready_Pin, (uint32_t)0, 0, 0, 0},															// 17Dose feedback signal (When ready)
 		{(uint32_t)Weld_Feedback_GPIO_Port, Weld_Feedback_Pin, (uint32_t)0, 0, 0, 0},													// 18Weld feedback (Check welder error)
-		{(uint32_t)0, 0, (uint32_t)Buzzer_GPIO_Port, Buzzer_Pin, 0, 0}																	// 19Buzzer
+		{(uint32_t)0, 0, (uint32_t)Buzzer_GPIO_Port, Buzzer_Pin, 0, 0},																	// 19Buzzer
+		{(uint32_t)Weld_Feedback2_GPIO_Port, Weld_Feedback2_Pin, (uint32_t)0, 0, 0, 0}													// 20Weld feedback2 (Check welder error)
 };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
 static void MX_TIM7_Init(void);
-static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
-static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 void Init(void);
 void toggle_func(struct Button *button);
@@ -174,23 +168,20 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_TIM7_Init();
-  MX_SPI2_Init();
   MX_TIM3_Init();
-  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
   //Reset output pins
   GPIOD->ODR = ~0;
   Init();
   HAL_Delay(2300);
   //Engage spi display
-  ST7920_Clean();
-  sprintf(tx_buffer, "Count: %lu", counter);
-  ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
+  //ST7920_Clean();
+  //sprintf(tx_buffer, "Count: %lu", counter);
+  //ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
   //Engage timers ( buttons check, etc. )
   HAL_TIM_Base_Start_IT(&htim7);
-  HAL_TIM_Base_Start_IT(&htim6);
+  //HAL_TIM_Base_Start_IT(&htim6);
   HAL_GPIO_WritePin(OUT_A_GPIO_Port, OUT_A_Pin, 1);
   HAL_GPIO_WritePin(OUT_B_GPIO_Port, OUT_B_Pin, 1);
   /* USER CODE END 2 */
@@ -317,26 +308,28 @@ int main(void)
 			void Welder_Check(void)
 			{
 				uint32_t timer = 12000000;
-				while(!Buttons[18].B_Out && timer--)
+				while(!Buttons[18].B_State && !Buttons[20].B_State)
 				{
+					timer--;
 					if(!timer)
 					{
-						Buttons[10].B_State = 0;
-						uint32_t delay = 200;
 						WELD_H_STOP
 						WELD_V_STOP
-						while(!Buttons[10].B_State && !Buttons[18].B_Out)
+						Buttons[10].B_Out = 0;
+						uint32_t delay = 200;
+						while(!Buttons[10].B_Out && (!Buttons[18].B_State || !Buttons[20].B_State))
 						{
-							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
-							HAL_Delay(delay);
 							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0);
 							HAL_Delay(delay);
+							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
+							HAL_Delay(delay);
 						};
+						WELD_H_START
+						WELD_V_START
 						break;
 					};
 				};
-				WELD_H_START
-				WELD_V_START
+
 			}
 			#define WELD_CHECK Welder_Check();
 
@@ -366,26 +359,12 @@ int main(void)
 					RELEASE_H
 					RELEASE_V
 					CYCLE_DELAY
-					//Pull stage 2
-					PULL
-					CYCLE_DELAY
-					//Clamp material 2
-					PUSH_V
-					CYCLE_DELAY
-					//Welding stage 2
-					WELD_V_START
-					WELD_CHECK
-					WELD_TIME
-					WELD_V_STOP
 					//Fill, release
 					WAIT_DOSE_READY
-
 					DOSE_PULSE_START
 					CYCLE_DELAY
 					DOSE_PULSE_STOP
-					HAL_Delay(WAITING); // TEST
-					//DOSE
-					RELEASE_V
+					HAL_Delay(WAITING); // Delay. Mixture fall time
 					CYCLE_DELAY
 				}
 				else
@@ -476,6 +455,7 @@ int main(void)
 					*/
 				}
 				// Section for quadrature counter
+				/*
 				static uint8_t mem = 0;
 				pOutSig++;
 				pOutSig++;
@@ -488,6 +468,7 @@ int main(void)
 				}
 				HAL_GPIO_WritePin(OUT_A_GPIO_Port, OUT_A_Pin, !pOutSig[0]);
 				HAL_GPIO_WritePin(OUT_B_GPIO_Port, OUT_B_Pin, !pOutSig[1]);
+				*/
 				//End
 
 				counter++; // Ammount of packages done
@@ -498,9 +479,11 @@ int main(void)
 				HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			}
 			//Spi 128x64 screen
+			/*
 			sprintf(tx_buffer, "Count: %lu", counter);
 			ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
 			ST7920_Update();
+			*/
 		}
   }
   /* USER CODE END 3 */
@@ -546,44 +529,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-}
-
-/**
-  * @brief SPI2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_SPI2_Init(void)
-{
-
-  /* USER CODE BEGIN SPI2_Init 0 */
-
-  /* USER CODE END SPI2_Init 0 */
-
-  /* USER CODE BEGIN SPI2_Init 1 */
-
-  /* USER CODE END SPI2_Init 1 */
-  /* SPI2 parameter configuration*/
-  hspi2.Instance = SPI2;
-  hspi2.Init.Mode = SPI_MODE_MASTER;
-  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi2.Init.CLKPolarity = SPI_POLARITY_HIGH;
-  hspi2.Init.CLKPhase = SPI_PHASE_2EDGE;
-  hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-  hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi2.Init.CRCPolynomial = 10;
-  if (HAL_SPI_Init(&hspi2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN SPI2_Init 2 */
-
-  /* USER CODE END SPI2_Init 2 */
-
 }
 
 /**
@@ -646,44 +591,6 @@ static void MX_TIM3_Init(void)
 }
 
 /**
-  * @brief TIM6 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM6_Init(void)
-{
-
-  /* USER CODE BEGIN TIM6_Init 0 */
-
-  /* USER CODE END TIM6_Init 0 */
-
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM6_Init 1 */
-
-  /* USER CODE END TIM6_Init 1 */
-  htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 24000-1;
-  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 500;
-  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM6_Init 2 */
-
-  /* USER CODE END TIM6_Init 2 */
-
-}
-
-/**
   * @brief TIM7 Initialization Function
   * @param None
   * @retval None
@@ -718,22 +625,6 @@ static void MX_TIM7_Init(void)
   /* USER CODE BEGIN TIM7_Init 2 */
 
   /* USER CODE END TIM7_Init 2 */
-
-}
-
-/** 
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void) 
-{
-
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA1_Stream4_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
 
 }
 
@@ -818,12 +709,12 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : Buzzer_Pin */
   GPIO_InitStruct.Pin = Buzzer_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(Buzzer_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : Mode_Pin Auto_Start_Pin */
-  GPIO_InitStruct.Pin = Mode_Pin|Auto_Start_Pin;
+  /*Configure GPIO pins : Weld_Feedback2_Pin Mode_Pin Auto_Start_Pin */
+  GPIO_InitStruct.Pin = Weld_Feedback2_Pin|Mode_Pin|Auto_Start_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -856,11 +747,11 @@ static void MX_GPIO_Init(void)
 void Init(void)
 {
 	  HAL_Delay(100);
-	  ST7920_Init();
-	  ST7920_Graphic_mode(1);
-	  sprintf(tx_buffer, "WELCOME");
-	  ST7920_Decode_UTF8(50, 3, 0, tx_buffer);
-	  ST7920_Update();
+	  //ST7920_Init();
+	  //ST7920_Graphic_mode(1);
+	  //sprintf(tx_buffer, "WELCOME");
+	  //ST7920_Decode_UTF8(50, 3, 0, tx_buffer);
+	  //ST7920_Update();
 	  for(uint8_t i = 0; i < BUTTONS_COUNT; i++)
 	  {
 		  Buttons[i].B_Out = 0;
@@ -932,13 +823,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		{
 			Buttons[14].B_Out = 0;
 			counter = 0;
-			ST7920_Clean();
+			//ST7920_Clean();
 		}
 
 	}
 	if (htim->Instance==TIM6)
 	{
-		ST7920_Update();
+		//ST7920_Update();
 	}
 }
 
