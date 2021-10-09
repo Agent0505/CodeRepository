@@ -93,7 +93,7 @@ char tmpflg = 0;
 
 static bool flag = false;
 #define WELD_DELAY 600
-#define BUTTONS_COUNT 21
+#define BUTTONS_COUNT 23
 struct Button Buttons[BUTTONS_COUNT];
 static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)V_Push_V_Weld_GPIO_Port, V_Push_V_Weld_Pin, 0, 0, PRESS, 0},															// 0Macros
@@ -116,7 +116,9 @@ static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)Dose_Ready_GPIO_Port, Dose_Ready_Pin, (uint32_t)0, 0, 0, 0},															// 17Dose feedback signal (When ready)
 		{(uint32_t)Weld_Feedback_GPIO_Port, Weld_Feedback_Pin, (uint32_t)0, 0, 0, 0},													// 18Weld feedback (Check welder error)
 		{(uint32_t)0, 0, (uint32_t)Buzzer_GPIO_Port, Buzzer_Pin, 0, 0},																	// 19Buzzer
-		{(uint32_t)Weld_Feedback2_GPIO_Port, Weld_Feedback2_Pin, (uint32_t)0, 0, 0, 0}													// 20Weld feedback2 (Check welder error)
+		{(uint32_t)Weld_Feedback2_GPIO_Port, Weld_Feedback2_Pin, (uint32_t)0, 0, 0, 0},													// 20Weld feedback2 (Check welder error)
+		{(uint32_t)VPush_FeedBack_GPIO_Port, VPush_FeedBack_Pin, (uint32_t)0, 0, 0, 0},													// 21VPush_FeedBack
+		{(uint32_t)HorizontalPistonFeedback_GPIO_Port, HorizontalPistonFeedback_Pin, (uint32_t)0, 0, 0, 0}								// 22HPush_FeedBack
 };
 /* USER CODE END PV */
 
@@ -287,6 +289,32 @@ int main(void)
 			#define CYCLE_DELAY HAL_Delay(100);
 			#define WELD_TIME HAL_Delay(600);
 			#define WAITING 450
+
+			#define VPISTON_STATE Buttons[21].B_State
+			#define HPISTON_STATE Buttons[22].B_State
+			void WaitPistons(void)
+			{
+				uint8_t timer = 0;
+				while(VPISTON_STATE == 0 || HPISTON_STATE == 0)
+				{
+					timer++;
+					HAL_Delay(10);
+					if(timer >= 10)
+					{
+						Buttons[10].B_Out = 0;
+						timer = 0;
+						while(!Buttons[10].B_Out && !Buttons[21].B_State && !Buttons[22].B_State)
+						{
+							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0);
+							HAL_Delay(200);
+							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
+							HAL_Delay(200);
+						};
+					}
+				}
+			}
+			#define WaitPush WaitPistons();
+
 			void WaitDoseReady(void)
 			{
 				while(Buttons[17].B_Out)
@@ -316,13 +344,12 @@ int main(void)
 						WELD_H_STOP
 						WELD_V_STOP
 						Buttons[10].B_Out = 0;
-						uint32_t delay = 200;
 						while(!Buttons[10].B_Out && (!Buttons[18].B_State || !Buttons[20].B_State))
 						{
 							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0);
-							HAL_Delay(delay);
+							HAL_Delay(200);
 							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
-							HAL_Delay(delay);
+							HAL_Delay(200);
 						};
 						WELD_H_START
 						WELD_V_START
