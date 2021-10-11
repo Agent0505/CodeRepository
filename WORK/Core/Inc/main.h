@@ -60,8 +60,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define OUT_B_Pin GPIO_PIN_2
-#define OUT_B_GPIO_Port GPIOE
 #define Button_2_Pin GPIO_PIN_3
 #define Button_2_GPIO_Port GPIOE
 #define Button_1_Pin GPIO_PIN_4
@@ -82,8 +80,6 @@ void Error_Handler(void);
 #define Led_2_GPIO_Port GPIOA
 #define Dose_Ready_Pin GPIO_PIN_4
 #define Dose_Ready_GPIO_Port GPIOC
-#define Buzzer_Pin GPIO_PIN_5
-#define Buzzer_GPIO_Port GPIOC
 #define Weld_Feedback2_Pin GPIO_PIN_2
 #define Weld_Feedback2_GPIO_Port GPIOB
 #define V_Push_V_Weld_Pin GPIO_PIN_7
@@ -130,10 +126,14 @@ void Error_Handler(void);
 #define Reed_Switch_GPIO_Port GPIOD
 #define STOP_Pin GPIO_PIN_4
 #define STOP_GPIO_Port GPIOD
+#define HorizontalPistonFeedback_Pin GPIO_PIN_6
+#define HorizontalPistonFeedback_GPIO_Port GPIOD
+#define VerticalPistonFeedback_Pin GPIO_PIN_7
+#define VerticalPistonFeedback_GPIO_Port GPIOD
+#define Buzzer_Pin GPIO_PIN_6
+#define Buzzer_GPIO_Port GPIOB
 #define RST_Pin GPIO_PIN_7
 #define RST_GPIO_Port GPIOB
-#define OUT_A_Pin GPIO_PIN_0
-#define OUT_A_GPIO_Port GPIOE
 #define HOLD_Pull_Pin GPIO_PIN_1
 #define HOLD_Pull_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */

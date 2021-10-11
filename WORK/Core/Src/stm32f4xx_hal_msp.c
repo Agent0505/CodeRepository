@@ -58,7 +58,7 @@
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
-                        
+
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                     /**
   * Initializes the Global MSP.
@@ -123,10 +123,10 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
   /* USER CODE BEGIN TIM3_MspPostInit 0 */
 
   /* USER CODE END TIM3_MspPostInit 0 */
-  
+
     __HAL_RCC_GPIOC_CLK_ENABLE();
-    /**TIM3 GPIO Configuration    
-    PC6     ------> TIM3_CH1 
+    /**TIM3 GPIO Configuration
+    PC6     ------> TIM3_CH1
     */
     GPIO_InitStruct.Pin = Prepare_OUT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;

@@ -17,7 +17,6 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
-
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
@@ -115,9 +114,9 @@ static uint32_t Defines[BUTTONS_COUNT][6] = {
 		{(uint32_t)Dose_GPIO_Port, Dose_Pin, (uint32_t)Dose_Pulse_Out_GPIO_Port, Dose_Pulse_Out_Pin, __DELAY, 100},						// 16Pulse out for dose machine
 		{(uint32_t)Dose_Ready_GPIO_Port, Dose_Ready_Pin, (uint32_t)0, 0, 0, 0},															// 17Dose feedback signal (When ready)
 		{(uint32_t)Weld_Feedback_GPIO_Port, Weld_Feedback_Pin, (uint32_t)0, 0, 0, 0},													// 18Weld feedback (Check welder error)
-		{(uint32_t)0, 0, (uint32_t)Buzzer_GPIO_Port, Buzzer_Pin, 0, 0},																	// 19Buzzer
+		{(uint32_t)0, 0, (uint32_t)0, 0, 0, 0},																							// 19Buzzer
 		{(uint32_t)Weld_Feedback2_GPIO_Port, Weld_Feedback2_Pin, (uint32_t)0, 0, 0, 0},													// 20Weld feedback2 (Check welder error)
-		{(uint32_t)VPush_FeedBack_GPIO_Port, VPush_FeedBack_Pin, (uint32_t)0, 0, 0, 0},													// 21VPush_FeedBack
+		{(uint32_t)VerticalPistonFeedback_GPIO_Port, VerticalPistonFeedback_Pin, (uint32_t)0, 0, 0, 0},									// 21VPush_FeedBack
 		{(uint32_t)HorizontalPistonFeedback_GPIO_Port, HorizontalPistonFeedback_Pin, (uint32_t)0, 0, 0, 0}								// 22HPush_FeedBack
 };
 /* USER CODE END PV */
@@ -183,9 +182,8 @@ int main(void)
   //ST7920_Decode_UTF8(20, 4, 0, tx_buffer);
   //Engage timers ( buttons check, etc. )
   HAL_TIM_Base_Start_IT(&htim7);
+  HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
   //HAL_TIM_Base_Start_IT(&htim6);
-  HAL_GPIO_WritePin(OUT_A_GPIO_Port, OUT_A_Pin, 1);
-  HAL_GPIO_WritePin(OUT_B_GPIO_Port, OUT_B_Pin, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -294,26 +292,26 @@ int main(void)
 			#define HPISTON_STATE Buttons[22].B_State
 			void WaitPistons(void)
 			{
-				uint8_t timer = 0;
+				uint16_t _timer = 0;
 				while(VPISTON_STATE == 0 || HPISTON_STATE == 0)
 				{
-					timer++;
-					HAL_Delay(10);
-					if(timer >= 10)
+					_timer++;
+					HAL_Delay(1);
+					if(_timer >= 900)
 					{
 						Buttons[10].B_Out = 0;
-						timer = 0;
-						while(!Buttons[10].B_Out && !Buttons[21].B_State && !Buttons[22].B_State)
+						_timer = 0;
+						while(!Buttons[10].B_Out && (!Buttons[21].B_State || !Buttons[22].B_State))
 						{
-							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0);
+							HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
 							HAL_Delay(200);
-							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
+							HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
 							HAL_Delay(200);
 						};
 					}
 				}
 			}
-			#define WaitPush WaitPistons();
+			#define WAITPUSH WaitPistons();
 
 			void WaitDoseReady(void)
 			{
@@ -336,7 +334,7 @@ int main(void)
 			void Welder_Check(void)
 			{
 				uint32_t timer = 12000000;
-				while(!Buttons[18].B_State && !Buttons[20].B_State)
+				while(!Buttons[18].B_State || !Buttons[20].B_State)
 				{
 					timer--;
 					if(!timer)
@@ -346,9 +344,9 @@ int main(void)
 						Buttons[10].B_Out = 0;
 						while(!Buttons[10].B_Out && (!Buttons[18].B_State || !Buttons[20].B_State))
 						{
-							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 0);
+							HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
 							HAL_Delay(200);
-							HAL_GPIO_WritePin(Buttons[19].GPIO_Out, Buttons[6].GPIO_Pin_Out, 1);
+							HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
 							HAL_Delay(200);
 						};
 						WELD_H_START
@@ -372,6 +370,7 @@ int main(void)
 					//Clamp material 1, cut pocket
 					PUSH_H
 					PUSH_V
+					WAITPUSH
 					CUT_START
 					CYCLE_DELAY
 					CUT_RELEASE
@@ -404,6 +403,7 @@ int main(void)
 					//Clamp material 1, cut pocket
 					PUSH_H
 					PUSH_V
+					WAITPUSH
 					CUT_START
 					CYCLE_DELAY
 					CUT_RELEASE
@@ -431,6 +431,7 @@ int main(void)
 					//Clamp material 2
 					PUSH_V
 					PUSH_H
+					WAITPUSH
 					CYCLE_DELAY
 					//Welding stage 2
 					WELD_V_START
@@ -525,11 +526,12 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Configure the main internal regulator output voltage 
+  /** Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -543,7 +545,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -673,35 +675,25 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, OUT_B_Pin|CS_Pin|OUT_A_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, Led_1_Pin|Led_2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, Dose_Pulse_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin 
+  HAL_GPIO_WritePin(GPIOD, Dose_Pulse_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin
                           |H_Push_Out_Pin|H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(RST_GPIO_Port, RST_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, Buzzer_Pin|RST_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : OUT_B_Pin OUT_A_Pin */
-  GPIO_InitStruct.Pin = OUT_B_Pin|OUT_A_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : Button_2_Pin Button_1_Pin CounterReset_Pin V_Push_V_Weld_Pin 
-                           Prepare_material_Pin Dose_Pin V_Push_Pin V_Weld_Pin 
-                           H_Push_Pin H_Weld_Pin Pull_Pin Cut_Pin 
+  /*Configure GPIO pins : Button_2_Pin Button_1_Pin CounterReset_Pin V_Push_V_Weld_Pin
+                           Prepare_material_Pin Dose_Pin V_Push_Pin V_Weld_Pin
+                           H_Push_Pin H_Weld_Pin Pull_Pin Cut_Pin
                            HOLD_Pull_Pin */
-  GPIO_InitStruct.Pin = Button_2_Pin|Button_1_Pin|CounterReset_Pin|V_Push_V_Weld_Pin 
-                          |Prepare_material_Pin|Dose_Pin|V_Push_Pin|V_Weld_Pin 
-                          |H_Push_Pin|H_Weld_Pin|Pull_Pin|Cut_Pin 
+  GPIO_InitStruct.Pin = Button_2_Pin|Button_1_Pin|CounterReset_Pin|V_Push_V_Weld_Pin
+                          |Prepare_material_Pin|Dose_Pin|V_Push_Pin|V_Weld_Pin
+                          |H_Push_Pin|H_Weld_Pin|Pull_Pin|Cut_Pin
                           |HOLD_Pull_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
@@ -733,33 +725,39 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(Dose_Ready_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : Buzzer_Pin */
-  GPIO_InitStruct.Pin = Buzzer_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(Buzzer_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : Weld_Feedback2_Pin Mode_Pin Auto_Start_Pin */
   GPIO_InitStruct.Pin = Weld_Feedback2_Pin|Mode_Pin|Auto_Start_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : Dose_Pulse_Out_Pin Dose_Out_Pin V_Push_Out_Pin V_Weld_Out_Pin 
+  /*Configure GPIO pins : Dose_Pulse_Out_Pin Dose_Out_Pin V_Push_Out_Pin V_Weld_Out_Pin
                            H_Push_Out_Pin H_Weld_Out_Pin Pull_Out_Pin Cut_Out_Pin */
-  GPIO_InitStruct.Pin = Dose_Pulse_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin 
+  GPIO_InitStruct.Pin = Dose_Pulse_Out_Pin|Dose_Out_Pin|V_Push_Out_Pin|V_Weld_Out_Pin
                           |H_Push_Out_Pin|H_Weld_Out_Pin|Pull_Out_Pin|Cut_Out_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : Reed_Switch_Pin STOP_Pin */
-  GPIO_InitStruct.Pin = Reed_Switch_Pin|STOP_Pin;
+  /*Configure GPIO pins : Reed_Switch_Pin STOP_Pin HorizontalPistonFeedback_Pin */
+  GPIO_InitStruct.Pin = Reed_Switch_Pin|STOP_Pin|HorizontalPistonFeedback_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : VerticalPistonFeedback_Pin */
+  GPIO_InitStruct.Pin = VerticalPistonFeedback_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(VerticalPistonFeedback_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Buzzer_Pin */
+  GPIO_InitStruct.Pin = Buzzer_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(Buzzer_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : RST_Pin */
   GPIO_InitStruct.Pin = RST_Pin;
@@ -883,7 +881,7 @@ void toggle_func(struct Button *button)
 {
 	if(HAL_GPIO_ReadPin(button->GPIO, button->GPIO_Pin) == 0 && button->Lock == 0)
 		{
-			if(button->B_counter < 10)
+			if(button->B_counter < 20)
 				button->B_counter++;
 			else
 				if(button->B_State == 0)
@@ -1027,7 +1025,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
